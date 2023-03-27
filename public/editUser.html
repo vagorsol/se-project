@@ -3,16 +3,19 @@
     <a href="/request">Search for Fund</a>
     <a href="/allFunds">View All Funds</a>
     <p></p>
-    <form action="/newUser" method="post">
-        <h3>Become a Contributor</h3>
+    <form action="/modifyUser"  method="post">
+        <h3>Edit User</h3>
+
+        Username: <input name="username">
+        <p>
+            Leave the area blank if you are not changing that value.  
+        </p>
 
         Name: <input name="name">
         <p>
-        Username: <input name="username">
-        <p>
         Password: <input name="password">
         <p>
-        <input type="submit" value="Create Account">
+        <input type="submit" value="Submit changes">
 
     </form>
     <br>
