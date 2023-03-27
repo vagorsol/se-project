@@ -36,11 +36,11 @@ var User = require('./User.js');
  */
 // search: check all bodies of all funds if contains, then return all w "funds with '[entry]' in them"
 app.use('/view', (req, res)=> {
-	var filter = {'name' : req.body.name};
+	var filter = req.body.name;
 	console.log(filter);
-	Fund.findOne( filter, (err, fund) => {
+	Fund.findOne({name: filter}).then((fund, err) => {
 		res.type('html').status(200);
-		console.log(fund);
+		//console.log(fund);
 		if (err) {
 			console.log('Error: ' + err);
 			res.write(err);
@@ -51,6 +51,7 @@ app.use('/view', (req, res)=> {
 			res.write('Name: ' + fund.name + "; Goal: " + fund.goal + "; Progress: " + fund.progress);
 			res.write(" <a href=\"/edit?name=" + fund.name + "\">[Edit]</a>");
 		}
+		res.write("<p> <a href=\"/\">[Return Home]</a>");
 		res.end();
 	});
 });
@@ -63,36 +64,59 @@ app.use('/view', (req, res)=> {
  * author @vagorsol
 */
 app.use('/modify', (req, res)=> {
-	var filter = req.query.name; 
+	var filter = req.body.name;  // Bandaid solution for not being able to pass query
+	console.log(filter);
 	// res.redirect('/public/editfund.html');
-
-	Fund.findOne(filter, (err, fund) =>{
-		console.log("Fund: " + fund);
+	Fund.findOne({name: filter}).then((fund, err) =>{
+		// console.log("Fund: " + fund);
 		if (err) {
 			res.send('Unexpected Error!');
 		} else if (!fund || fund == null) {
+			console.log(fund);
 			// send message that there is no such fund
-			res.send('No such fund exists!');
+			res.type('html').status(200);
+
+			res.write('No such fund exists!');
+			res.write(" <a href=\"/allFunds\">[View All Funds]</a>");
+			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
+			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			res.end();
 		} else {
 			// if the submitted body isn't empty, update the value
 			if (req.body.goal){
 				fund.goal = req.body.goal;
-				console.log("Updated Goal! " + fund.goal);
+				Fund.findByIdAndUpdate({_id: fund.id}, {goal: fund.goal}).then((err, doc) => {
+					if(err){
+						res.write('Unexpected Error!');
+					} else{
+						console.log("Updated Goal! " + fund.goal);
+					}
+				});
 			}
 			if (req.body.progress){
 				fund.progress = req.body.progress; 
+				Fund.findByIdAndUpdate({_id: fund.id}, {progress: fund.progress}).then((err, doc) => {
+					if(err){
+						res.write('Unexpected Error!');
+					} else{
+						console.log("Updated Goal! " + fund.goal);
+					}
+				});
 				console.log("Updated progress! " + fund.progress);
 			}
-			Fund.findByIdAndUpdate({name: fund.name},{goal: fund.goal}, {progress: fund.progress});
+			console.log(fund.id);
+			//Fund.findOneAndUpdate(filter, {goal: fund.goal, progress: fund.progress});
+
+			//console.log(fund);
+			res.type('html').status(200);
+			res.write('Changes successfully made!');
+			res.write(" <a href=\"/allFunds\">[View All Funds]</a>");
+			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
+			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			res.end();
 			
 		}
 	});
-
-	console.log(fund);
-	res.type('html').status(200);
-	res.write('Changes successfully made!');
-	res.write(" <a href=\"/all\">[View All Funds]</a>");
-	res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 
 });
 
@@ -120,33 +144,37 @@ app.use('/add', (req, res) => {
 			res.write(" <a href=\"/create\">[Add Another Fund]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 		}
+		res.write("<p> <a href=\"/\">[Return Home]</a>");
 		res.end(); 
 	    } ); 
     }
     );
 
-// endpoint for showing all the people
-app.use('/all', (req, res) => {
+// endpoint for showing all the Funds
+app.use('/allFunds', (req, res) => {
     
 	// find all the Person objects in the database
-	Fund.find( {}, (err, funds) => {
+	Fund.find().then((funds, err) => {
 		if (err) {
 		    res.type('html').status(200);
 		    console.log('uh oh' + err);
-		    res.write(err);
+		    res.send(err);
 		}
 		else {
-		    if (funds.length == 0) {
+			console.log(funds);
+		    if (!funds || funds == null || funds.length == 0) {
 			res.type('html').status(200);
-			res.write('There are no fund');
+			res.write('There are no funds');
+			res.write("<p> <a href=\"/\">Return Home </a>");
 			res.end();
 			return;
 		    }
 		    else {
 			res.type('html').status(200);
-			res.write('Here are the people in the database:');
+			res.write('Here are the Funds in the database:');
 			res.write('<ul>');
 			// show all the people
+			funds.sort(); // this sorts them BEFORE rendering the results
 			funds.forEach( (fund) => {
 			    res.write('<li>');
 			    res.write('Name: ' + fund.name + '; Goal: ' + fund.goal + '; Progress: ' + fund.progress);
@@ -156,10 +184,51 @@ app.use('/all', (req, res) => {
 					 
 			});
 			res.write('</ul>');
+			res.write("<p> <a href=\"/\">[Return Home]</a>");
 			res.end();
 		    }
 		}
-	    }).sort({ 'name': 'asc' }); // this sorts them BEFORE rendering the results
+	    }) 
+});
+
+// endpoint for showing all the Contributors
+app.use('/allUsers', (req, res) => {
+    
+	// find all the Person objects in the database
+	User.find().then((users, err) => {
+		if (err) {
+		    res.type('html').status(200);
+		    console.log('uh oh' + err);
+		    res.send(err);
+		}
+		else {
+		    if (!users || users == null || users.length == 0) {
+			res.type('html').status(200);
+			res.write('There are no users');
+			res.write("<p> <a href=\"/\">Return Home </a>");
+			res.end();
+			return;
+		    }
+		    else {
+			res.type('html').status(200);
+			res.write('Here are the people in the database:');
+			res.write('<ul>');
+			// show all the people
+			users.sort({ 'name': 'asc' }); // this sorts them BEFORE rendering the results
+			users.forEach( (user) => {
+			    res.write('<li>');
+			    res.write('Name: ' + user.name + '; Goal: ' + user.goal + '; Progress: ' + user.progress);
+			    // this creates a link to the /delete endpoint
+			    res.write(" <a href=\"/edit?name=" + user.name + "\">[Edit]</a>");
+			    res.write('</li>');
+					 
+			});
+			res.write('</ul>');
+			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			res.end();
+		    }
+		}
+	    }) 
 });
 
 app.use('/newUser', (req, res) => {
@@ -180,10 +249,10 @@ app.use('/newUser', (req, res) => {
 		else {
 		    // display the "successfull created" message
 		    res.write('Successfully added ' + newUser.name + ' to the database');
-			res.write("<br> <a href=\"/\">Return Home </a>")
 			res.write(" <a href=\"/create\">[Add Fund]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 		}
+		res.write("<p> <a href=\"/\">Return Home </a>");
 		res.end(); 
 	    } ); 
     }
