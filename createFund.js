@@ -1,23 +1,34 @@
 var express = require('express');
 var app = express();
 
-// This is the definition of the Product class -- DO NOT CHANGE IT!
+// This is the definition of the Fund class
 class Fund {
-    constructor(name, description, goal, progress, tags, owner, location, fundLog) {
-			this.name = name;
-			this.description = description;
-			this.goal = goal;
-			this.progress = progress;
-			this.tags = tags;
-			this.owner = owner;
-			this.location = location;
-			this.fundLog = fundLog;
+    constructor(id, name, description, goal, progress, tags, ownerName, ownerAddress, location) {
+		// Randomly generated hashcode for id
+		this.id;
+		// Name of the fund
+		this.name = name;
+		// Description for the fund
+		this.description = description;
+		// Goal for the fund
+		this.goal = goal;
+		// Progress made towards the goal for the fund
+		this.progress = progress;
+		// Tags for searching the fund
+		this.tags = tags;
+		// Name of the fund creator
+		this.ownerName = ownerName;
+		// Email address of fund owner
+		this.ownerAddress = ownerAddress;
+		// Where the fund was made
+		this.location = location;
+		// this.fundLog = fundLog;
     }
 }
 
 // This is the map of IDs to Fund objects
 var funds = new Map();
-funds.set('Care Fund', 'For the kids!', 123, 32, [kids, inprogress], new Owner('1234', 'available'), 'Ireland', new fundLog());
+funds.set(1234, 'Care Fund', 'For the kids!', 123, 0, [kids, inprogress], 'Kids for Care', 'kidsforcare@gmail.com', 'Ireland');
 
 
 // This is the '/test' endpoint that you can use to check that this works
@@ -32,14 +43,16 @@ app.use('/test', (req, res) => {
 // Helps create a fund
 app.use('/create', (req, res) => {
 	var newFund = new Fund ({
+		id : req.body.id,
 		name : req.body.name,
 		description : req.body.description,
 		goal : req.body.goal,
-		progress : req.body.progress,
+		progress : 0,
 		tags : req.body.tags,
-		owner : req.body.owner,
+		ownerName : req.body.ownerName,
+		ownerAddress : req.body.ownerAddress,
 		location : req.body.location,
-		fundLog : req.body.fundLog,
+		// fundLog : req.body.fundLog,
 	});
 
 	var newFund = req.query.newFund;
@@ -60,9 +73,10 @@ app.use('/create', (req, res) => {
 	}); 
 });
 
+// Deletes a fund from the database
 app.use('/delete', (req, res) => {
 	var name = req.query.name;
-	
+	// Finds specific fund
 	Fund.find( queryObject, (err, funds) => {
 		console.log(funds);
 		if (err) {
@@ -109,7 +123,9 @@ app.use('/all', (req, res) => {
 			// show all the people
 			persons.forEach( (fund) => {
 			    res.write('<li>');
-			    res.write('Name: ' + fund.name + '; Description: ' + fund.description + '; Goal');
+			    res.write('Name: ' + fund.name + '; Description: ' + fund.description + '; Goal: ' + fund.goal + '; Owner: '
+				+ fund.ownerName + '; Email: ' +  fund.ownerAddress + '; Tags: ' + fund.tags +
+				'; Location: ' + fund.location);
 			    // this creates a link to the /delete endpoint
 			    res.write(" <a href=\"/delete?name=" + person.name + "\">[Delete]</a>");
 			    res.write('</li>');
