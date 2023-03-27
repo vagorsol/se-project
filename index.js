@@ -57,6 +57,7 @@ app.use('/view', (req, res)=> {
 });
 
 // [Fix] TODO: edit not working? also send to screen that's like "changes submited!" [redirect to search] [??]
+// TODO: Fix routing so that the user does not have to renter name of fund
 /**
  * Modifies a Fund given its name. It gets values from form data and
  * updates and place back in database. Once done, it sends the user back to the 
