@@ -11,8 +11,7 @@ app.use('/test', (req, res) => {
 
 // This just sends back a message for any URL path not covered above
 app.use('/', (req, res) => {
-	res.send('Default message.');
-    });
+	res.sendFile(__dirname + "/index.html"); });
 
 // This starts the web server on port 3000. 
 app.listen(3000, () => {
