@@ -6,8 +6,7 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-/* Connecting to MongoDB Atlas
-*/
+// set up MongoDB and Mongoose
 var mongoose = require('mongoose');
 mongoose.connect(
 	'mongodb+srv://jshand:SoftTeam@fundcollections.7fyo0g4.mongodb.net/?retryWrites=true&w=majority', 
@@ -25,6 +24,7 @@ mongoose.connect(
 
 // import the Fund class from Fund.js
 var Fund = require('./Fund.js');
+// import the User class from User.js
 var User = require('./User.js');
 
 /**
@@ -56,7 +56,7 @@ app.use('/view', (req, res)=> {
 	});
 });
 
-// TODO: edit not working? also send to screen that's like "changes submited!" [redirect to search] [??]
+// [Fix] TODO: edit not working? also send to screen that's like "changes submited!" [redirect to search] [??]
 /**
  * Modifies a Fund given its name. It gets values from form data and
  * updates and place back in database. Once done, it sends the user back to the 
@@ -120,6 +120,13 @@ app.use('/modify', (req, res)=> {
 
 });
 
+/**
+ * Modifies a Contributor given its username. It gets values from form data and
+ * updates and place back in database. Once done, it sends the user back to the 
+ * view page
+ * author @vagorsol
+ * edit @jshand18
+*/
 app.use('/modifyUser', (req, res)=>{
 	var filter = req.body.username;  // Bandaid solution for not being able to pass query
 	console.log(filter);
@@ -244,6 +251,7 @@ app.use('/allFunds', (req, res) => {
 	    }) 
 });
 
+// endpoint for deleting a fund
 app.use('/deleteFund', (req, res) => {
 	var filter = req.query.name;
 	Fund.deleteOne({name: filter}).then((err) => {
@@ -253,7 +261,6 @@ app.use('/deleteFund', (req, res) => {
 	});
 	res.redirect('/allFunds');
 });
-
 
 // endpoint for showing all the Contributors
 app.use('/allUsers', (req, res) => {
@@ -296,6 +303,7 @@ app.use('/allUsers', (req, res) => {
 	    }) 
 });
 
+// endpoint for deleting a user
 app.use('/deleteUser', (req, res) => {
 	var filter = req.query.username;
 	User.deleteOne({username: filter}).then((err) => {
