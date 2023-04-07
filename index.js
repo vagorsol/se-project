@@ -20,12 +20,17 @@ mongoose.connect(
   db.on("error", console.error.bind(console, "connection error: "));
   db.once("open", function () {
 	console.log("Connected successfully");
-  });
+});
 
 // import the Fund class from Fund.js
 var Fund = require('./Fund.js');
 // import the User class from User.js
 var User = require('./User.js');
+
+// value to hold name of Fund to edit
+var fundID;
+// value to hold name of User to edit 
+var userID;
 
 /**
  * Gets the fund with the exact entered name.
@@ -56,8 +61,6 @@ app.use('/view', (req, res)=> {
 	});
 });
 
-// [Fix] TODO: edit not working? also send to screen that's like "changes submited!" [redirect to search] [??]
-// TODO: Fix routing so that the user does not have to renter name of fund
 /**
  * Modifies a Fund given its name. It gets values from form data and
  * updates and place back in database. Once done, it sends the user back to the 
@@ -65,8 +68,8 @@ app.use('/view', (req, res)=> {
  * author @vagorsol
 */
 app.use('/modify', (req, res)=> {
-	var filter = req.body.name;  // Bandaid solution for not being able to pass query
-	console.log(filter);
+	var filter = fundID;  // Bandaid solution for not being able to pass query
+	console.log("Filter: " + filter);
 	// res.redirect('/public/editfund.html');
 	Fund.findOne({name: filter}).then((fund, err) =>{
 		// console.log("Fund: " + fund);
@@ -81,7 +84,6 @@ app.use('/modify', (req, res)=> {
 			res.write(" <a href=\"/allFunds\">[View All Funds]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
-			res.end();
 		} else {
 			// if the submitted body isn't empty, update the value
 			if (req.body.goal){
@@ -106,17 +108,14 @@ app.use('/modify', (req, res)=> {
 					}
 				});
 			}
-			//Fund.findOneAndUpdate(filter, {goal: fund.goal, progress: fund.progress});
 
-			//console.log(fund);
 			res.type('html').status(200);
 			res.write('<p>Changes successfully made to ' + fund.name + '!');
 			res.write("<p> <a href=\"/allFunds\">[View All Funds]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
-			res.end();
-			
 		}
+		res.end();
 	});
 
 });
@@ -125,12 +124,11 @@ app.use('/modify', (req, res)=> {
  * Modifies a Contributor given its username. It gets values from form data and
  * updates and place back in database. Once done, it sends the user back to the 
  * view page
- * author @vagorsol
- * edit @jshand18
+ * author @jshand18
 */
 app.use('/modifyUser', (req, res)=>{
-	var filter = req.body.username;  // Bandaid solution for not being able to pass query
-	console.log(filter);
+	var filter = userID;  // Bandaid solution for not being able to pass query
+	console.log("User ID (to edit): " + filter);
 	User.findOne({username: filter}).then((user, err) =>{
 		if (err) {
 			res.send('Unexpected Error!');
@@ -180,9 +178,10 @@ app.use('/modifyUser', (req, res)=>{
 
 });
 
-// temporary create function so i can test things
-// endpoint for creating a new person
-// this is the action of the "create new person" form
+
+/**
+ * Creates a new user
+*/ 
 app.use('/add', (req, res) => {
 	// construct the Person from the form data which is in the request body
 	var newFund = new Fund ({
@@ -238,7 +237,6 @@ app.use('/allFunds', (req, res) => {
 			funds.forEach( (fund) => {
 			    res.write('<li>');
 			    res.write('Name: ' + fund.name + '; Goal: ' + fund.goal + '; Progress: ' + fund.progress);
-			    // this creates a link to the /delete endpoint
 			    res.write(" <a href=\"/edit?name=" + fund.name + "\">[Edit]</a>");
 				res.write(" <a href=\"/deleteFund?name=" + fund.name + "\">[Delete]</a>");
 			    res.write('</li>');
@@ -291,6 +289,7 @@ app.use('/allUsers', (req, res) => {
 			    res.write('<li>');
 			    res.write('Name: ' + user.name + '; Username: ' + user.username);
 			    // this creates a link to the /delete endpoint
+				console.log("username: " + user.username);
 			    res.write(" <a href=\"/editUser?username=" + user.username + "\">[Edit]</a>");
 				res.write(" <a href=\"/deleteUser?username=" + user.username + "\">[Delete]</a>");
 			    res.write('</li>');
@@ -341,7 +340,8 @@ app.use('/newUser', (req, res) => {
 		res.end(); 
 	    } ); 
     }
-    );
+);
+
 /***************************************/
 // This is the '/test' endpoint that you can use to check that this works
 app.use('/test', (req, res) => {
@@ -358,10 +358,16 @@ app.listen(3000, () => {
 
 app.use('/public', express.static('public'));
 
+/***************************************/
 // Directory for linking through html files
 app.get('/', (req, res)=> { res.redirect('/public/index.html'); } );
 app.get('/request', (req, res) => { res.redirect('/public/viewFund.html'); } );
-app.get('/create', (req, res) => {res.redirect('/public/addFund.html'); } ); // rough "add fund" function for testing
-app.get('/edit', (req, res) => {res.redirect('/public/editFund.html'); })
-app.get('/editUser', (req, res) => {res.redirect('/public/editUser.html'); })
+app.get('/create', (req, res) => {res.redirect('/public/addFund.html'); } );
+app.get('/edit', (req, res) => {
+	fundID = req.query.name; 
+	console.log("Fund ID (to Edit): " + fundID);
+	res.redirect('/public/editFund.html'); })
+app.get('/editUser', (req, res) => {
+	userID = req.query.username;
+	res.redirect('/public/editUser.html'); })
 app.get('/createUser', (req, res) => {res.redirect('/public/newUser.html'); })
