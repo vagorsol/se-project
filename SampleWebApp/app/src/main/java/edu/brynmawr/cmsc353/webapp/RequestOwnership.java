@@ -22,7 +22,7 @@ public class RequestOwnership extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.request_ownership);
 
         editText = (EditText) findViewById(R.id.fund);
         editText1 = (EditText) findViewById(R.id.user);
@@ -35,7 +35,7 @@ public class RequestOwnership extends AppCompatActivity  {
 
     public void onConnectButtonClick(View v) {
 
-        TextView tv = findViewById(R.id.statusField);
+        TextView tv = findViewById(R.id.submit);
 
         try {
             ExecutorService executor = Executors.newSingleThreadExecutor();

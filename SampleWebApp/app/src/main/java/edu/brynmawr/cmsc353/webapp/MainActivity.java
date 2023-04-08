@@ -26,18 +26,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editText = (EditText) findViewById(R.id.fund);
-        editText1 = (EditText) findViewById(R.id.user);
+        editText = (EditText) findViewById(R.id.username);
+        editText1 = (EditText) findViewById(R.id.password);
 
     }
 
+    // TODO: better variable names
     protected String message;
     protected String message2;
 
-
+    // TODO: multiple buttons things
+    // also tbh i'm not going to touch this because i have no idea how to do any of the port
+    // stuff or authentication
     public void onConnectButtonClick(View v) {
 
-        TextView tv = findViewById(R.id.statusField);
+        TextView tv = findViewById(R.id.login);
 
         try {
             ExecutorService executor = Executors.newSingleThreadExecutor();
