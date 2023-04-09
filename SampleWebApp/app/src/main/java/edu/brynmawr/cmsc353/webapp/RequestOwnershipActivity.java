@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class RequestOwnership extends AppCompatActivity  {
+public class RequestOwnershipActivity extends AppCompatActivity  {
     /// moved the ownership request form code Here so homepage as main works I think
     EditText editText;
     EditText editText1;

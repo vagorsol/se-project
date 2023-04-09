@@ -1,13 +1,15 @@
 package edu.brynmawr.cmsc353.webapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class FundsView extends AppCompatActivity {
-
+public class FundsViewActivity extends AppCompatActivity {
+    public static final int COUNTER_ACTIVITY_ID = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,5 +23,23 @@ public class FundsView extends AppCompatActivity {
                 R.array.filter_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+
+        // TODO: implement putting all funds on allfunds_view.xml
     }
+
+    public void onUpdateCounterButtonClick(View v) {
+       switch(v.getId()) {
+           case R.id.profile:
+               // goes to the profile page
+               Intent i = new Intent(this, ProfileActivity.class);
+               startActivityForResult(i, COUNTER_ACTIVITY_ID);
+               break;
+           case R.id.filter:
+               // TODO: implement filtering
+               break;
+           default:
+               break;
+       }
+    }
+
 }

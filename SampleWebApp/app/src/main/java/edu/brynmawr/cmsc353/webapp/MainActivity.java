@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,16 +19,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
-    EditText editText;
-    EditText editText1;
+    EditText usernameText;
+    EditText passwordText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editText = (EditText) findViewById(R.id.username);
-        editText1 = (EditText) findViewById(R.id.password);
+        usernameText = (EditText) findViewById(R.id.username);
+        passwordText = (EditText) findViewById(R.id.password);
+
+        // set up buttons
+        Button but1 = (Button) findViewById(R.id.login);
+        Button resBtn = (Button) findViewById(R.id.guest);
 
     }
 
@@ -50,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
                     // and that it has a /test endpoint that returns a JSON object with
                     // a field called "message"
 
-                    message = editText.getText().toString();
-                    message2 = editText.getText().toString();
+                    message = usernameText.getText().toString();
+                    message2 = passwordText.getText().toString();
 
 
                     URL url = new URL("http://10.0.2.2:3000/create?name=" + message + "&user=" + message2 );
@@ -93,35 +98,4 @@ public class MainActivity extends AppCompatActivity {
             tv.setText(e.toString());
         }
     }
-
-    /*
-    This implementation uses AsyncTasks, which are now deprecated.
-
-    public void onConnectButtonClick(View v) {
-
-        TextView tv = findViewById(R.id.statusField);
-
-        try {
-            // assumes that there is a server running on the AVD's host on port 3000
-            // and that it has a /test endpoint that returns a JSON object with
-            // a field called "message"
-            URL url = new URL("http://10.0.2.2:3000/test");
-
-            AccessWebTask task = new AccessWebTask();
-            task.execute(url);
-
-            String message = task.get();
-            tv.setText(message);
-
-        }
-        catch (Exception e) {
-            // uh oh
-            e.printStackTrace();
-            tv.setText(e.toString());
-        }
-
-
-    }
-
-     */
 }

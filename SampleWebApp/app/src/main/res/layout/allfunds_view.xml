@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FundsView">
+    tools:context=".FundsViewActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical" >
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -39,8 +39,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- I cannot get this to center and a tthis point I Do Not Care -->
-        <Button android:id="@+id/filter"
+        <!-- I cannot get this to center and at this point I Do Not Care™ -->
+        <Button
+            android:id="@+id/filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -52,7 +53,8 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
-        <!-- Insert Funds here-->
+
+        <!-- TODO: Insert Funds here-->
 
     </LinearLayout>
 
