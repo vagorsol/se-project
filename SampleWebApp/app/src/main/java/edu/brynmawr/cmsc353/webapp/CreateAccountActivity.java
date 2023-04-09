@@ -26,7 +26,7 @@ public class CreateAccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.profile_view);
+        setContentView(R.layout.create_account);
     }
 
     // Account Info Submitted
