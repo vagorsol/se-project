@@ -32,6 +32,7 @@ public class FundsViewActivity extends AppCompatActivity {
            case R.id.profile:
                // goes to the profile page
                Intent i = new Intent(this, ProfileActivity.class);
+               // i.putExtra("User", [insert username here]);
                startActivityForResult(i, COUNTER_ACTIVITY_ID);
                break;
            case R.id.filter:

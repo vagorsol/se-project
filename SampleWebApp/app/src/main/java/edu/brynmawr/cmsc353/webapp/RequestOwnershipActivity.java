@@ -18,6 +18,8 @@ public class RequestOwnershipActivity extends AppCompatActivity  {
     /// moved the ownership request form code Here so homepage as main works I think
     EditText editText;
     EditText editText1;
+    protected String message;
+    protected String message2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +30,6 @@ public class RequestOwnershipActivity extends AppCompatActivity  {
         editText1 = (EditText) findViewById(R.id.user);
 
     }
-
-    protected String message;
-    protected String message2;
-
 
     public void onConnectButtonClick(View v) {
 
