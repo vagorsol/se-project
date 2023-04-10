@@ -1,3 +1,4 @@
+const { ObjectId, Timestamp } = require('mongodb');
 var mongoose = require('mongoose');
 
 // the host:port must match the location where you are running MongoDB
@@ -9,20 +10,18 @@ var Schema = mongoose.Schema;
 // will implement editing those values later - currently aiming for a very basic setup
 var fundSchema = new Schema({
 	name: {type: String, required: true, unique: true},
-    // description: String,
+    description: String,
     goal: Number,
-    progress: Number /*,
-    tags: [String],
-    owners: [{
-        contact_name: String,
-        contact_email: String
+    progress: Number,
+    owners: [ObjectId],
+    contributor_log: [{
+        contributor_id: ObjectId,
+        contribution: Number,
+        date : Timestamp
     }],
     location: String,
-    contributor_log: [{
-        contributor_id: Number,
-        username: String,
-        contribution_amt: Number
-    }]*/
+    creationDate: Timestamp
+    // tags : [String]
     });
 
 // export fundSchema as a class called Fund

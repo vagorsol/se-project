@@ -20,12 +20,17 @@ mongoose.connect(
   db.on("error", console.error.bind(console, "connection error: "));
   db.once("open", function () {
 	console.log("Connected successfully");
-  });
+});
 
 // import the Fund class from Fund.js
 var Fund = require('./Fund.js');
-// import the User class from User.js
-var User = require('./User.js');
+// import the contributor class from contributor.js
+var Contributor = require('./Contributor.js');
+
+// value to hold name of Fund to edit
+var fundID;
+// value to hold name of contributor to edit 
+var contributorID;
 
 /**
  * Gets the fund with the exact entered name.
@@ -56,17 +61,15 @@ app.use('/view', (req, res)=> {
 	});
 });
 
-// [Fix] TODO: edit not working? also send to screen that's like "changes submited!" [redirect to search] [??]
-// TODO: Fix routing so that the user does not have to renter name of fund
 /**
  * Modifies a Fund given its name. It gets values from form data and
- * updates and place back in database. Once done, it sends the user back to the 
+ * updates and place back in database. Once done, it sends the contributor back to the 
  * view page
  * author @vagorsol
 */
 app.use('/modify', (req, res)=> {
-	var filter = req.body.name;  // Bandaid solution for not being able to pass query
-	console.log(filter);
+	var filter = fundID;  // Bandaid solution for not being able to pass query
+	console.log("Filter: " + filter);
 	// res.redirect('/public/editfund.html');
 	Fund.findOne({name: filter}).then((fund, err) =>{
 		// console.log("Fund: " + fund);
@@ -81,7 +84,6 @@ app.use('/modify', (req, res)=> {
 			res.write(" <a href=\"/allFunds\">[View All Funds]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
-			res.end();
 		} else {
 			// if the submitted body isn't empty, update the value
 			if (req.body.goal){
@@ -106,40 +108,36 @@ app.use('/modify', (req, res)=> {
 					}
 				});
 			}
-			//Fund.findOneAndUpdate(filter, {goal: fund.goal, progress: fund.progress});
 
-			//console.log(fund);
 			res.type('html').status(200);
 			res.write('<p>Changes successfully made to ' + fund.name + '!');
 			res.write("<p> <a href=\"/allFunds\">[View All Funds]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
-			res.end();
-			
 		}
+		res.end();
 	});
 
 });
 
 /**
- * Modifies a Contributor given its username. It gets values from form data and
- * updates and place back in database. Once done, it sends the user back to the 
+ * Modifies a Contributor given its contributorname. It gets values from form data and
+ * updates and place back in database. Once done, it sends the contributor back to the 
  * view page
- * author @vagorsol
- * edit @jshand18
+ * author @jshand18
 */
-app.use('/modifyUser', (req, res)=>{
-	var filter = req.body.username;  // Bandaid solution for not being able to pass query
-	console.log(filter);
-	User.findOne({username: filter}).then((user, err) =>{
+app.use('/modifycontributor', (req, res)=>{
+	var filter = contributorID;  // Bandaid solution for not being able to pass query
+	console.log("contributor ID (to edit): " + filter);
+	contributor.findOne({contributorname: filter}).then((contributor, err) =>{
 		if (err) {
 			res.send('Unexpected Error!');
-		} else if (!user || user == null) {
-			console.log(user);
+		} else if (!contributor || contributor == null) {
+			console.log(contributor);
 			// send message that there is no such fund
 			res.type('html').status(200);
 
-			res.write('No such user exists!');
+			res.write('No such contributor exists!');
 			res.write(" <a href=\"/allFunds\">[View All Funds]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
@@ -147,31 +145,31 @@ app.use('/modifyUser', (req, res)=>{
 		} else {
 			// if the submitted body isn't empty, update the value
 			if (req.body.name){
-				user.name = req.body.name;
-				User.findByIdAndUpdate({_id: user.id}, {name: user.name}).then((err) => {
+				contributor.name = req.body.name;
+				contributor.findByIdAndUpdate({_id: contributor.id}, {name: contributor.name}).then((err) => {
 					if(err){
 						res.write('Unexpected Error!');
 					} else{
-						console.log("Updated Name! " + user.name);
-						res.write("<p>Updated + " + user.username + "'s Name: " + user.name + "!");
+						console.log("Updated Name! " + contributor.name);
+						res.write("<p>Updated + " + contributor.contributorname + "'s Name: " + contributor.name + "!");
 					}
 				});
 			}
 			if (req.body.password){
-				user.password = req.body.password; 
-				User.findByIdAndUpdate({_id: user.id}, {password: user.progress}).then((err) => {
+				contributor.password = req.body.password; 
+				contributor.findByIdAndUpdate({_id: contributor.id}, {password: contributor.progress}).then((err) => {
 					if(err){
 						res.write('Unexpected Error!');
 					} else{
-						console.log("Updated Password! " + user.password);
-						res.write("<p>Updated + " + user.username + "'s Password: " + user.password + "!");
+						console.log("Updated Password! " + contributor.password);
+						res.write("<p>Updated + " + contributor.contributorname + "'s Password: " + contributor.password + "!");
 					}
 				});
 			}
 
 			res.type('html').status(200);
-			res.write('<p>Changes successfully made to ' + user.username + '!');
-			res.write("<p> <a href=\"/allUsers\">[View All Users]</a>");
+			res.write('<p>Changes successfully made to ' + contributor.contributorname + '!');
+			res.write("<p> <a href=\"/allcontributors\">[View All contributors]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
 			res.end();
@@ -180,9 +178,10 @@ app.use('/modifyUser', (req, res)=>{
 
 });
 
-// temporary create function so i can test things
-// endpoint for creating a new person
-// this is the action of the "create new person" form
+
+/**
+ * Creates a new contributor
+*/ 
 app.use('/add', (req, res) => {
 	// construct the Person from the form data which is in the request body
 	var newFund = new Fund ({
@@ -238,7 +237,6 @@ app.use('/allFunds', (req, res) => {
 			funds.forEach( (fund) => {
 			    res.write('<li>');
 			    res.write('Name: ' + fund.name + '; Goal: ' + fund.goal + '; Progress: ' + fund.progress);
-			    // this creates a link to the /delete endpoint
 			    res.write(" <a href=\"/edit?name=" + fund.name + "\">[Edit]</a>");
 				res.write(" <a href=\"/deleteFund?name=" + fund.name + "\">[Delete]</a>");
 			    res.write('</li>');
@@ -264,19 +262,19 @@ app.use('/deleteFund', (req, res) => {
 });
 
 // endpoint for showing all the Contributors
-app.use('/allUsers', (req, res) => {
+app.use('/allcontributors', (req, res) => {
     
 	// find all the Person objects in the database
-	User.find().then((users, err) => {
+	contributor.find().then((contributors, err) => {
 		if (err) {
 		    res.type('html').status(200);
 		    console.log('uh oh' + err);
 		    res.send(err);
 		}
 		else {
-		    if (!users || users == null || users.length == 0) {
+		    if (!contributors || contributors == null || contributors.length == 0) {
 			res.type('html').status(200);
-			res.write('There are no users');
+			res.write('There are no contributors');
 			res.write("<p> <a href=\"/\">Return Home </a>");
 			res.end();
 			return;
@@ -286,13 +284,14 @@ app.use('/allUsers', (req, res) => {
 			res.write('Here are the people in the database:');
 			res.write('<ul>');
 			// show all the people
-			users.sort(); // this sorts them BEFORE rendering the results
-			users.forEach( (user) => {
+			contributors.sort(); // this sorts them BEFORE rendering the results
+			contributors.forEach( (contributor) => {
 			    res.write('<li>');
-			    res.write('Name: ' + user.name + '; Username: ' + user.username);
+			    res.write('Name: ' + contributor.name + '; contributorname: ' + contributor.contributorname);
 			    // this creates a link to the /delete endpoint
-			    res.write(" <a href=\"/editUser?username=" + user.username + "\">[Edit]</a>");
-				res.write(" <a href=\"/deleteUser?username=" + user.username + "\">[Delete]</a>");
+				console.log("contributorname: " + contributor.contributorname);
+			    res.write(" <a href=\"/editcontributor?contributorname=" + contributor.contributorname + "\">[Edit]</a>");
+				res.write(" <a href=\"/deletecontributor?contributorname=" + contributor.contributorname + "\">[Delete]</a>");
 			    res.write('</li>');
 					 
 			});
@@ -304,28 +303,28 @@ app.use('/allUsers', (req, res) => {
 	    }) 
 });
 
-// endpoint for deleting a user
-app.use('/deleteUser', (req, res) => {
-	var filter = req.query.username;
-	User.deleteOne({username: filter}).then((err) => {
+// endpoint for deleting a contributor
+app.use('/deletecontributor', (req, res) => {
+	var filter = req.query.contributorname;
+	contributor.deleteOne({contributorname: filter}).then((err) => {
 		if(err){
 			res.write('Unexpected Error!');
 		} 
 	});
-	res.redirect('/allUsers');
+	res.redirect('/allcontributors');
 });
 
 // endpoint for adding a new Contributor
-app.use('/newUser', (req, res) => {
+app.use('/newcontributor', (req, res) => {
 	// construct the Person from the form data which is in the request body
-	var newUser = new User({
-		username: req.body.username,
+	var newcontributor = new contributor({
+		contributorname: req.body.contributorname,
 		password: req.body.password,
 		name: req.body.name,
 	    });
-	console.log("user created");
+	console.log("contributor created");
 	// save the person to the database
-	newUser.save().then( (err) => { 
+	newcontributor.save().then( (err) => { 
 		res.type('html').status(200);
 		if (!err) {
 		    res.write('uh oh: ' + err);
@@ -333,7 +332,7 @@ app.use('/newUser', (req, res) => {
 		}
 		else {
 		    // display the "successfull created" message
-		    res.write('Successfully added ' + newUser.name + ' to the database');
+		    res.write('Successfully added ' + newcontributor.name + ' to the database');
 			res.write(" <a href=\"/create\">[Add Fund]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 		}
@@ -341,7 +340,8 @@ app.use('/newUser', (req, res) => {
 		res.end(); 
 	    } ); 
     }
-    );
+);
+
 /***************************************/
 // This is the '/test' endpoint that you can use to check that this works
 app.use('/test', (req, res) => {
@@ -358,10 +358,16 @@ app.listen(3000, () => {
 
 app.use('/public', express.static('public'));
 
+/***************************************/
 // Directory for linking through html files
 app.get('/', (req, res)=> { res.redirect('/public/index.html'); } );
 app.get('/request', (req, res) => { res.redirect('/public/viewFund.html'); } );
-app.get('/create', (req, res) => {res.redirect('/public/addFund.html'); } ); // rough "add fund" function for testing
-app.get('/edit', (req, res) => {res.redirect('/public/editFund.html'); })
-app.get('/editUser', (req, res) => {res.redirect('/public/editUser.html'); })
-app.get('/createUser', (req, res) => {res.redirect('/public/newUser.html'); })
+app.get('/create', (req, res) => {res.redirect('/public/addFund.html'); } );
+app.get('/edit', (req, res) => {
+	fundID = req.query.name; 
+	console.log("Fund ID (to Edit): " + fundID);
+	res.redirect('/public/editFund.html'); })
+app.get('/editcontributor', (req, res) => {
+	contributorID = req.query.contributorname;
+	res.redirect('/public/editcontributor.html'); })
+app.get('/createcontributor', (req, res) => {res.redirect('/public/newcontributor.html'); })
