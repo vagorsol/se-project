@@ -104,9 +104,10 @@ app.use('/allFundForms', (req, res) => {
 		}
 		else {
 		    if (fundForms.length == 0) {
-			res.type('html').status(200);
-			res.write('There are no funds');
-			res.end();
+			//res.type('html').status(200);
+			//res.write('There are no funds');
+			res.redirect('/public/index.html');
+			//res.end();
 			return;
 		    }
 		    else {
@@ -116,10 +117,10 @@ app.use('/allFundForms', (req, res) => {
 			// show all the people
 			fundForms.forEach( (fund) => {
 			    res.write('<li>');
-			    res.write('Name: ' + fundForms.name + '; user: ' + fundForms.user);
+			    res.write('Name: ' + fund.name + '; user: ' + fund.user);
 			    // this creates a link to the /delete endpoint
-			    res.write(" <a href=\"/addFundOwner?owner=" + fundForms.user +"&fund=" + fundForms.name + "\">[addFundOwner]</a>");
-				res.write(" <a href=\"/delete?name=" + fundForms.name + "\">[delete]</a>");
+			    res.write(" <a href=\"/addFundOwner?owner=" + fund.user +"&fund=" + fund.name + "\">[addFundOwner]</a>");
+				res.write(" <a href=\"/delete?name=" + fund.name + "\">[delete]</a>");
 			    res.write('</li>');
 					 
 			});
@@ -146,7 +147,8 @@ app.use('/addFundOwner', (req, res) => {
 			}
 			else {
 				// display the "successfull created" message
-				res.json({ "status" : "success" });
+				console.log(newFundOwner.owner);
+				res.redirect('/delete?name=' + newFundOwner.fund);
 			}
 		} );
 	
@@ -155,18 +157,18 @@ app.use('/addFundOwner', (req, res) => {
 //this deletes the fund form if the person is not accepted.
 app.use('/delete', (req, res) => {
     var filter = {'name' : req.query.name};
-	Fund.findOneAndDelete( filter, (err, fund) =>{
+	FundForm.findOneAndDelete( filter, (err, fundForm) =>{
 		if(err) {
 			console.log({'status':err});
 		}
-		else if(!fund){
+		else if(!fundForm){
 			console.log({'status': 'no person'});
 		}
 		else{
 			console.log({'status':'success'});
 		}
 	});
-    res.redirect('/all');
+    res.redirect('/allFundForms');
 });
 
 	// endpoint for showing all the people
