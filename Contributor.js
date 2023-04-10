@@ -1,6 +1,6 @@
 const { ObjectId} = require('mongodb');
 var mongoose = require('mongoose');
-
+var passportLocalMongoose = require('passport-local-mongoose');
 
 
 var Schema = mongoose.Schema;
@@ -20,8 +20,12 @@ var contributorSchema = new Schema({
     }]
     });
 
+
+contributorSchema.plugin(passportLocalMongoose);
 // export fundSchema as a class called Fund
-module.exports = mongoose.model('Contributor',contributorSchema);
+module.exports = mongoose.model('Contributor', contributorSchema);
+
+
 
 // unclear if we want it to be case sensitive
 contributorSchema.methods.standardizeName = function() {
