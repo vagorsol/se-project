@@ -329,8 +329,13 @@ app.use('/add', (req, res) => {
 	// construct the Person from the form data which is in the request body
 	var newFund = new Fund ({
 		name: req.body.name,
+		description: req.body.desscription,
 		goal: req.body.goal,
-		progress: req.body.progress
+		progress: 0,
+		owners: [],
+		contributor_log: [],
+		location: req.body.location,
+		creationDate: new Date()
 	    });
 	console.log("fund created");
 	// save the person to the database
