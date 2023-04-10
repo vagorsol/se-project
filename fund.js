@@ -17,10 +17,10 @@ var fundSchema = new Schema({
     contributor_log: [{
         contributor_id: ObjectId,
         contribution: Number,
-        date : Timestamp
+        date : Date
     }],
     location: String,
-    creationDate: Timestamp
+    creationDate: Date
     // tags : [String]
     });
 

@@ -1,6 +1,6 @@
-const { ObjectId, Timestamp } = require('mongodb');
+const { ObjectId } = require('mongodb');
 var mongoose = require('mongoose');
-
+var passportLocalMongoose = require('passport-local-mongoose');
 
 
 var Schema = mongoose.Schema;
@@ -15,12 +15,16 @@ var contributorSchema = new Schema({
     contribution_log : [{
         fundId : ObjectId,
         contribution : Number,
-        date : Timestamp
+        date : Date
     }]
     });
 
+
+contributorSchema.plugin(passportLocalMongoose);
 // export fundSchema as a class called Fund
-module.exports = mongoose.model('Contributor',contributorSchema);
+module.exports = mongoose.model('Contributor', contributorSchema);
+
+
 
 // unclear if we want it to be case sensitive
 contributorSchema.methods.standardizeName = function() {
