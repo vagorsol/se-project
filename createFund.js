@@ -135,7 +135,15 @@ app.use('/all', (req, res) => {
 			res.end();
 		    }
 		}
-	    }).sort({ 'name': 'asc' }); // this sorts them BEFORE rendering the results
+	}).sort({ 'name': 'asc' }); // this sorts them BEFORE rendering the results
+});
+
+// This is the '/test' endpoint that you can use to check that this works
+app.use('/donatefund', (req, res) => {
+	// create a JSON object
+	var data = { 'message' : 'It works!' };
+    // send it back
+	res.json(data);
 });
 
 // -------------------------------------------------------------------------
