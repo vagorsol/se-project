@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class CreateAccountActivity extends AppCompatActivity {
+public class CreateAccountActivity extends AppCompatActivity{
     // TODO: better variable names
     EditText usernameText;
     EditText passwordText;
@@ -30,7 +30,7 @@ public class CreateAccountActivity extends AppCompatActivity {
     }
 
     // Account Info Submitted
-    public void onConnectButtonClick(View v) {
+    public void onClick(View v) {
         // TODO: change this text so it fits the "create account" specificity
         TextView tv = findViewById(R.id.login);
         try {

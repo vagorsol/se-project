@@ -90,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(this, FundsViewActivity.class);
                 startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 break;
+            case R.id.ownerRequest:
+                // TODO: implement guest perms
+                i = new Intent(this, RequestOwnership2Activity.class);
+                startActivityForResult(i, COUNTER_ACTIVITY_ID);
+                break;
             default:
                 break;
         }

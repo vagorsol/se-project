@@ -45,6 +45,11 @@
             android:id="@+id/fund"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <Button android:id="@+id/fundOwner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Become a Fund Owner!" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

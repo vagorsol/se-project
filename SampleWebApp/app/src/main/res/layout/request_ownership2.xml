@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RequestOwnership2Activity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/statusField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30dp"
+            android:gravity="center"
+            android:text="Fill this out if you want to be a fund owner" />
+
+        <TextView
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30dp"
+            android:gravity="center"
+            android:text="Put fund name here: " />
+
+        <EditText
+            android:id="@+id/fund2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Click Me!"
+            android:gravity="center"
+            android:onClick="onConnectButtonClick"/>
+
+    </LinearLayout>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

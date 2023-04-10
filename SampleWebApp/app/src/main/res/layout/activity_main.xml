@@ -61,6 +61,14 @@
             android:gravity="center"
             android:onClick="onConnectButtonClick"/>
 
+        <Button
+            android:id="@+id/ownerRequest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Submit an owner request"
+            android:gravity="center"
+            android:onClick="onConnectButtonClick"/>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
