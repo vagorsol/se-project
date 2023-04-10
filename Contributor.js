@@ -1,4 +1,4 @@
-const { ObjectId, Timestamp } = require('mongodb');
+const { ObjectId} = require('mongodb');
 var mongoose = require('mongoose');
 
 
@@ -15,7 +15,7 @@ var contributorSchema = new Schema({
     contribution_log : [{
         fundId : ObjectId,
         contribution : Number,
-        date : Timestamp
+        date : Date
     }]
     });
 

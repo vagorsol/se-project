@@ -1,4 +1,4 @@
-const { ObjectId, Timestamp } = require('mongodb');
+const { ObjectId} = require('mongodb');
 var mongoose = require('mongoose');
 
 // the host:port must match the location where you are running MongoDB
@@ -17,10 +17,10 @@ var fundSchema = new Schema({
     contributor_log: [{
         contributor_id: ObjectId,
         contribution: Number,
-        date : Timestamp
+        date : Date
     }],
     location: String,
-    creationDate: Timestamp
+    creationDate: Date
     // tags : [String]
     });
 

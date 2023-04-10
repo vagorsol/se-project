@@ -26,11 +26,13 @@ mongoose.connect(
 var Fund = require('./Fund.js');
 // import the contributor class from contributor.js
 var Contributor = require('./Contributor.js');
-
+//import fundOwner from fundOwner.js
+var FundOwner = require('./FundOwner.js');
 // value to hold name of Fund to edit
 var fundID;
 // value to hold name of contributor to edit 
 var contributorID;
+var FundForm = require('./FundForm.js');
 
 /**
  * Gets the fund with the exact entered name.
@@ -60,6 +62,147 @@ app.use('/view', (req, res)=> {
 		res.end();
 	});
 });
+
+/**
+ * used to create a new form so that when people ask to be a fund owner they 
+ * can be accepted or denied
+ * author @aburgess
+ */
+app.use('/newFundForm', (req,res)=>{
+	// construct the Person from the form data which is in the request body
+	var newFundForm = new FundForm ({
+		name: req.query.name,
+		user: req.query.user,
+		});
+	
+		// save the person to the database
+		newFundForm.save( (err) => { 
+			if (err) {
+				console.log(err);
+				res.json({ "status" : "error" });
+			}
+			else {
+				// display the "successfull created" message
+				res.json({ "status" : "success" });
+			}
+		} ); 
+	}
+	);
+
+/**
+ * This is where the admin can go to check through funds
+ * and accept or delete forms
+ * author @aburgess
+ */
+app.use('/allFundForms', (req, res) => {
+	// find all the Fund objects in the database
+	FundForm.find( {}, (err, fundForms) => {
+		if (err) {
+		    res.type('html').status(200);
+		    console.log('uh oh' + err);
+		    res.write(err);
+		}
+		else {
+		    if (fundForms.length == 0) {
+			res.type('html').status(200);
+			res.write('There are no funds');
+			res.end();
+			return;
+		    }
+		    else {
+			res.type('html').status(200);
+			res.write('Here are the funds in the database:');
+			res.write('<ul>');
+			// show all the people
+			fundForms.forEach( (fund) => {
+			    res.write('<li>');
+			    res.write('Name: ' + fundForms.name + '; user: ' + fundForms.user);
+			    // this creates a link to the /delete endpoint
+			    res.write(" <a href=\"/addFundOwner?owner=" + fundForms.user +"&fund=" + fundForms.name + "\">[addFundOwner]</a>");
+				res.write(" <a href=\"/delete?name=" + fundForms.name + "\">[delete]</a>");
+			    res.write('</li>');
+					 
+			});
+			res.write('</ul>');
+			res.end();
+		    }
+		}
+	    }).sort({ 'user': 'asc' }); // this sorts them BEFORE rendering the results
+});
+/*
+this adds the fund to the fund owner collection
+*/
+app.use('/addFundOwner', (req, res) => {
+	var newFundOwner = new FundOwner ({
+		owner: req.query.owner,
+		fund: req.query.fund,
+		});
+	
+		// save the person to the database
+		newFundOwner.save( (err) => { 
+			if (err) {
+				console.log(err);
+				res.json({ "status" : "error" });
+			}
+			else {
+				// display the "successfull created" message
+				res.json({ "status" : "success" });
+			}
+		} );
+	
+});
+
+//this deletes the fund form if the person is not accepted.
+app.use('/delete', (req, res) => {
+    var filter = {'name' : req.query.name};
+	Fund.findOneAndDelete( filter, (err, fund) =>{
+		if(err) {
+			console.log({'status':err});
+		}
+		else if(!fund){
+			console.log({'status': 'no person'});
+		}
+		else{
+			console.log({'status':'success'});
+		}
+	});
+    res.redirect('/all');
+});
+
+	// endpoint for showing all the people
+	app.use('/allFundOwners', (req, res) => {
+    
+		// find all the Fund objects in the database
+		FundOwner.find( {}, (err, fundowners) => {
+			if (err) {
+				res.type('html').status(200);
+				console.log('uh oh' + err);
+				res.write(err);
+			}
+			else {
+				if (fundowners.length == 0) {
+				res.type('html').status(200);
+				res.write('There are no funds');
+				res.end();
+				return;
+				}
+				else {
+				res.type('html').status(200);
+				res.write('Here are the fundOwners in the database:');
+				res.write('<ul>');
+				// show all the people
+				fundowners.forEach( (fundOwner) => {
+					res.write('<li>');
+					res.write('Owner: ' + fundOwner.owner + '; fund: ' + fundOwner.fund);
+					res.write('</li>');
+						 
+				});
+				res.write('</ul>');
+				res.end();
+				}
+			}
+			}).sort({ 'user': 'asc' }); // this sorts them BEFORE rendering the results
+	});
 
 /**
  * Modifies a Fund given its name. It gets values from form data and
@@ -314,6 +457,29 @@ app.use('/deletecontributor', (req, res) => {
 	res.redirect('/allcontributors');
 });
 
+app.use('/createFund', (req, res) => {
+	// construct the Fund from the form data which is in the request body
+	var newFund = new Fund ({
+		name: req.query.name,
+		user: req.query.user,
+	    });
+
+	// save the fund to the database
+	newFund.save( (err) => { 
+		if (err) {
+		    res.type('html').status(200);
+		    res.write('uh oh: ' + err);
+		    console.log(err);
+		    res.end();
+		}
+		else {
+		    // display the "successfull created" message
+		    res.send('successfully added ' + newFund.name + ' to the database');
+		}
+	    } ); 
+    }
+    );
+
 // endpoint for adding a new Contributor
 app.use('/newcontributor', (req, res) => {
 	// construct the Person from the form data which is in the request body
@@ -340,6 +506,8 @@ app.use('/newcontributor', (req, res) => {
 		res.end(); 
 	    } ); 
     }
+
+
 );
 
 /***************************************/
