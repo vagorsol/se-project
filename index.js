@@ -6,21 +6,20 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Set up Session for state persitance
 var session = require('express-session');
 app.use(session({
 	secret: 'SoftTeamIsCoool',
 	resave: false,
 	saveUninitialized: true,
-	cookie: {maxAge : 60 * 60 * 1000} //1 Hour
+	cookie: {maxAge : 60 * 60 * 1000} // 1 Hour refresh rate for signing in
 
 }));
 
-
+// Set up Passport for authentication
 var passport = require('passport');
-var LocalStrategy = require('passport-local');
 app.use(passport.initialize());
 app.use(passport.session());
-
 var connectEnsureLogin = require('connect-ensure-login');
 
 // set up MongoDB and Mongoose
@@ -42,7 +41,7 @@ mongoose.connect(
 var Fund = require('./Fund.js');
 // import the Contributor class from Contributor.js
 var Contributor = require('./Contributor.js');
-
+// Import the owner class from owner.js
 var Owner = require('./Owner.js');
 
 // value to hold name of Fund to edit
@@ -51,8 +50,6 @@ var fundID;
 var ContributorID;
 // value to hold name of Owner to edit 
 var OwnerID;
-
-//passport.use(Contributor.createStrategy());
 
 passport.use(Contributor.createStrategy());
 passport.serializeUser(Contributor.serializeUser());
@@ -83,6 +80,7 @@ app.use('/view', (req, res)=> {
 			res.write(" <a href=\"/edit?name=" + fund.name + "\">[Edit]</a>");
 		}
 		res.write("<p> <a href=\"/\">[Return Home]</a>");
+		if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 		res.end();
 	});
 });
@@ -167,6 +165,7 @@ app.use('/modifyUser', (req, res)=>{
 			res.write(" <a href=\"/allFunds\">[View All Funds]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 			res.end();
 		} else {
 			// if the submitted body isn't empty, update the value
@@ -198,6 +197,7 @@ app.use('/modifyUser', (req, res)=>{
 			res.write("<p> <a href=\"/allUsers\">[View All Users]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 			res.end();
 		}
 	});
@@ -229,6 +229,7 @@ app.use('/add', (req, res) => {
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 		}
 		res.write("<p> <a href=\"/\">[Return Home]</a>");
+		if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 		res.end(); 
 	    } ); 
     }
@@ -305,6 +306,7 @@ app.use('/allFunds', (req, res) => {
 			});
 			res.write('</ul>');
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 			res.end();
 		    }
 		}
@@ -364,7 +366,6 @@ app.use('/deleteFund', (req, res) => {
 	res.redirect('/allFunds');
 });
 
-
 // endpoint for deleting a user
 app.use('/deleteUser', (req, res) => {
 	var filter = req.query.username;
@@ -387,6 +388,35 @@ app.use('/test', (req, res) => {
 	res.json(data);
     });
 
+// Testing for login in functionaility
+app.get('/login',connectEnsureLogin.ensureLoggedOut('/profile'), (req, res, next) =>{
+		res.redirect('/public/login.html');
+});
+
+app.post('/login', passport.authenticate('local', {successRedirect: '/view', failureRedirect: '/createUser' }),  function(req, res) {
+	console.log("LOGIN" + req.user);
+	res.redirect('/secret');
+});
+
+app.get('/logout', (req, res) => {
+	req.session.destroy((err) => {
+		res.redirect('/'); 
+	  });
+});
+
+app.get('/profile', connectEnsureLogin.ensureLoggedIn(), (req,res) =>{
+	res.type('html').status(200);
+	res.write("Hello " + req.user.name);
+	res.write("<p> <a href=\"/\">[Return Home]</a>");
+	res.write("<p> <a href=\"/logout\">[Log Out]</a>");
+	res.end();
+});
+
+app.get('/secret', connectEnsureLogin.ensureLoggedIn(), (req,res) => {
+	res.redirect('/public/secret.html');
+});
+
+
 // This starts the web server on port 3000. 
 app.listen(3000, () => {
 	console.log('Listening on port 3000');
@@ -408,16 +438,22 @@ app.get('/editUser', (req, res) => {
 	res.redirect('/public/editUser.html'); })
 app.get('/createUser', (req, res) => {res.redirect('/public/newUser.html'); })
 
-
-app.get('/login', (req, res, next) =>{
-	res.redirect('/public/login.html');
+/* Checking the logged in status on the andriod side*/
+app.get('/loginStatus', (req, res) => {
+	if(req.user){
+		res.json({'status' : 'true'});
+	} else{
+		res.json({'status' : 'false'});
+	}
 });
 
-app.post('/login', passport.authenticate('local', {successRedirect: '/view', failureRedirect: '/createUser' }),  function(req, res) {
-	console.log("LOGIN" + req.user);
-	res.redirect('/view');
-});
 
-app.get('/secret', connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-	res.redirect('/public/secret.html');
-});
+/* Helper function for checking the logged in status on the web side*/
+function isLoggedIn(req, res){
+	if(req.user){
+		return true;
+	} else{
+		return false;
+	}
+}
+
