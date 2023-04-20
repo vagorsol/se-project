@@ -4,59 +4,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileActivity">
+    tools:context=".DonateActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center">
-        <!-- User Info -->
-        <TextView android:id="@+id/username"
+        <!-- Fund name Info -->
+        <TextView android:id="@+id/fund_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="30dp"
             android:gravity="center"
-            android:text="Username Here" />
-
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
+            android:text="Fund Name Here" />
 
         <!-- Contribution History -->
         <TextView android:id="@+id/contribution_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20dp"
-            android:gravity="left"
-            android:text="Funds Donated To" />
+            android:gravity="center"
+            android:text="Donation Amount" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="15dp"
-            android:gravity="left"
-            android:text="Contribution History" />
-
-        <!-- Notes -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:gravity="left"
-            android:text="Notes" />
-
-        <EditText
-            android:id="@+id/fund"
+        <Spinner
+            android:id="@+id/donation_amt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <Button android:id="@+id/submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Donate" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
 
         <Button android:id="@+id/fundOwner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Become a Fund Owner!" />
+            android:text="Request Fund Ownership" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

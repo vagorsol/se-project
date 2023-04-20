@@ -30,6 +30,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
         TextView usernameView = findViewById(R.id.username);
         usernameView.setText("Welcome, " + username);
+
+        // set contribution history
     }
 
     @Override

@@ -21,7 +21,6 @@ var fundSchema = new Schema({
     }],
     location: String,
     creationDate: Date
-    // tags : [String]
     });
 
 // export fundSchema as a class called Fund
