@@ -447,7 +447,7 @@ app.use('/allContributors', (req, res) => {
 // endpoint for deleting a contributor
 app.use('/deletecontributor', (req, res) => {
 	var filter = req.query.contributorname;
-	contributor.deleteOne({contributorname: filter}).then((err) => {
+	Contributor.deleteOne({contributorname: filter}).then((err) => {
 		if(err){
 			res.write('Unexpected Error!');
 		} 
@@ -513,7 +513,7 @@ app.use('/newcontributor', (req, res) => {
 app.use('/addToFund', (req, res) => {
 	var fundname = {'name' : req.query.fund};
 	var donationAmt = req.query.donation;
-	var username = {'username' : req.query.username};
+	var username = {'username' : req.user.username}; // todo: check if "req.user.username" is right here
 
 	// update fund
 	Fund.findOne(fundname).then((fund, err) => {
@@ -608,6 +608,43 @@ app.use('/addToFund', (req, res) => {
 		res.end();
 	})
 });
+
+app.use('/contributionHistory', (req, res) => {
+	var username = {'username' : req.user.username};
+
+	// update user
+	Contributor.findOne(username).then((contributor, err) => {
+		var contributionHistory = []
+		if (err) {
+			console.log(err);
+			res.json([]);
+		} else if (!contributor || contributor == null) {
+			// send empty json
+			res.json([]);
+		} else {
+			// if there is no contribution log, create one. otherwise, update
+			if (!contributor.contribution_log || contributor.contribution_log == null) {
+				// send empty json
+				res.json([])
+			} else {
+				contributor.contribution_log.forEach((i) => {
+					contributionHistory.unshift(i); // i don't know what it's actually sending. hm. 
+				});
+				res.send(contributionHistory);
+			}	
+		}
+	})
+});
+
+// return username function?
+app.use('/getUsernmae', (req, res) => {
+	if (req.user.username) {
+		res.json({'username' : req.user.username});
+	} else {
+		res.json([]);
+	}
+});
+
 /***************************************/
 // This is the '/test' endpoint that you can use to check that this works
 app.use('/test', (req, res) => {
