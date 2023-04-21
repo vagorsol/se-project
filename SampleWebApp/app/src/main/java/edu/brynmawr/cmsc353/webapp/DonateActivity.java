@@ -56,7 +56,7 @@ public class DonateActivity extends AppCompatActivity {
                     executor.execute( () -> {
                         try {
                             URL url = new URL("http://10.0.2.2:3000/addToFund?fund="
-                                    + fundname + "&donation=");
+                                    + fundname + "&donation=" + donationAmt);
                             // should be req.user.username?
                             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                             conn.setRequestMethod("GET");
@@ -70,13 +70,10 @@ public class DonateActivity extends AppCompatActivity {
                     });
 
                     // this waits for up to 2 seconds
-                    // it's a bit of a hack because it's not truly asynchronous
-                    // but it should be okay for our purposes (and is a lot easier)
                     executor.awaitTermination(2, TimeUnit.SECONDS);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                    // tv.setText(e.toString());
                 }
 
                 // redirects back to allfunds_view
