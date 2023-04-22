@@ -97,9 +97,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         if(v.getId() == R.id.fundOwner) {
             Intent i = new Intent(this, RequestOwnership2Activity.class);
 
-            //String x = this.send;
-            //i.putExtra("message",send);
-
             startActivityForResult(i, COUNTER_ACTIVITY_ID);
         }
     }
