@@ -13,6 +13,7 @@ var fundSchema = new Schema({
     description: String,
     goal: Number,
     progress: Number,
+    completion: Number,
     owners: [ObjectId],
     contributor_log: [{
         contributor_id: ObjectId,

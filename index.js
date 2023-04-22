@@ -325,6 +325,7 @@ app.use('/add', (req, res) => {
 		description: req.body.desscription,
 		goal: req.body.goal,
 		progress: 0,
+		completion: 0,
 		owners: [],
 		contributor_log: [],
 		location: req.body.location,
