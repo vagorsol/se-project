@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -28,7 +29,12 @@ public class DonateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.donate_view);
 
-        // TODO: get & set donation name
+        // get & set donation name
+        Bundle b = getIntent().getExtras();
+        fundname = b.getString("Fund Name");
+
+        TextView tv = findViewById(R.id.fund_name);
+        tv.setText(fundname);
 
         // set up spinner
         spinner = (Spinner) findViewById(R.id.donation_amt);
@@ -49,15 +55,13 @@ public class DonateActivity extends AppCompatActivity {
                 String donationStr = spinner.getSelectedItem().toString();
                 int donationAmt = Integer.parseInt(donationStr);
 
-                // use "giveToFund" endpoint (how)
+                // use "giveToFund" endpoint
                 try {
                     ExecutorService executor = Executors.newSingleThreadExecutor();
-                    String message;
                     executor.execute( () -> {
                         try {
                             URL url = new URL("http://10.0.2.2:3000/addToFund?fund="
                                     + fundname + "&donation=" + donationAmt);
-                            // should be req.user.username?
                             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                             conn.setRequestMethod("GET");
                             conn.connect();
