@@ -29,12 +29,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         Button button0 = findViewById(R.id.fundOwner);
         button0.setOnClickListener(this);
 
-        // if no username (i.e., not logged in), will be sent to create an account
-        if (username.isEmpty()) {
-            Intent i = new Intent(this, CreateAccountActivity.class);
-            startActivityForResult(i, COUNTER_ACTIVITY_ID);
-        }
-
         TextView usernameView = findViewById(R.id.username);
         TextView contributionView = findViewById(R.id.contribution_history);
 

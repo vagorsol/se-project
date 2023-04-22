@@ -419,7 +419,6 @@ app.use('/allprogress', (req, res) => { // PLEASE CHECK IF IT NEEDS MODIFICATION
 			    res.write('<li>');
 				res.write('Name: ' + fund.name + '; Goal: ' + fund.goal + '; Progress: ' + fund.progress +
 				'; Completion: ' + fund.completion + '% ; Owners: ' + fund.ownerName);
-			    // // this creates a link to the /delete endpoint
 			    res.write(" <a href=\"/delete?name=" + person.name + "\">[Delete]</a>");
 			    res.write('</li>');
 					 
@@ -472,6 +471,7 @@ app.use('/allContributors', (req, res) => {
 			    res.write('<li>');
 			    res.write('Name: ' + contributor.name + '; contributorname: ' + contributor.contributorname);
 			    // this creates a link to the /delete endpoint
+				console.log(contributor);
 				console.log("contributorname: " + contributor.contributorname);
 			    res.write(" <a href=\"/editcontributor?contributorname=" + contributor.contributorname + "\">[Edit]</a>");
 				res.write(" <a href=\"/deletecontributor?contributorname=" + contributor.contributorname + "\">[Delete]</a>");
@@ -524,7 +524,7 @@ app.use('/createFund', (req, res) => {
 // endpoint for adding a new Contributor
 app.use('/newcontributor', (req, res) => {
 	// construct the Person from the form data which is in the request body
-	var newcontributor = new contributor({
+	var newcontributor = new Contributor({
 		contributorname: req.body.contributorname,
 		password: req.body.password,
 		name: req.body.name,
@@ -555,8 +555,8 @@ app.use('/newcontributor', (req, res) => {
 app.use('/addToFund', (req, res) => {
 	var fundname = {'name' : req.query.fund};
 	var donationAmt = req.query.donation;
-	var username = {'username' : req.user.username}; // todo: check if "req.user.username" is right here
-
+	var username = {'username' : req.query.username}; // {'username' : req.user.username}; // todo: check if "req.user.username" is right here
+	var fundID;
 	// update fund
 	Fund.findOne(fundname).then((fund, err) => {
 		if (err) {
@@ -567,7 +567,9 @@ app.use('/addToFund', (req, res) => {
 
 			res.send('No such fund exists!');
 		} else {
+			fundID = fund.id;
 			// update fund progress
+			console.log(fund.id);
 			fund.progress =  parseInt(fund.progress) + parseInt(donationAmt);
 
 			// if there is no contribution log, create one. otherwise, update
@@ -618,16 +620,17 @@ app.use('/addToFund', (req, res) => {
 			res.send('No such contributor exists!');
 			console.log(username);
 		} else {
+			console.log("Fund id: " + fundID);
 			// if there is no contribution log, create one. otherwise, update
 			if (!contributor.contribution_log || contributor.contribution_log == null) {
 				contributor.contribution_log = [{
-					fund_id: fund,
+					fundId: fundID,
 					contribution: donationAmt,
 					date: new Date()
 				}];
 			} else {
 				contributor.contribution_log.push({
-					contributor_id: username,
+					fundId: fundID,
 					contribution: donationAmt,
 					date: new Date()
 				});
@@ -652,30 +655,39 @@ app.use('/addToFund', (req, res) => {
 });
 
 app.use('/contributionHistory', (req, res) => {
-	var username = {'username' : req.user.username};
+	var username = {'username' : req.query.username} // {'username' : req.user.username};
+	var contributionHistory = [];
 
-	// update user
 	Contributor.findOne(username).then((contributor, err) => {
-		var contributionHistory = []
 		if (err) {
 			console.log(err);
-			res.json([]);
-		} else if (!contributor || contributor == null) {
-			// send empty json
-			res.json([]);
-		} else {
+		} else if (contributor && contributor != null) {
 			// if there is no contribution log, create one. otherwise, update
-			if (!contributor.contribution_log || contributor.contribution_log == null) {
-				// send empty json
-				res.json([])
-			} else {
+			if (contributor.contribution_log && contributor.contribution_log != null) {
 				contributor.contribution_log.forEach((i) => {
-					contributionHistory.unshift(i); // i don't know what it's actually sending. hm. 
-				});
+					fundID = i.fundId; 
+					Fund.findById(fundID).then((fund, err) => {
+						if (err) {
+							console.log(err);
+						} else {
+							// console.log("found fund!: " + fund);
+							if (fund && fund != null) {
+								// console.log(fund.name);
+								contributionHistory.unshift({
+									"fundname" : fund.name,
+									"contribution" : i.contribution,
+									"date" : i.date
+								});
+								console.log(contributionHistory);
+							}
+						}
+					});
+				});	
+				console.log(contributionHistory);
 				res.send(contributionHistory);
-			}	
-		}
-	})
+			}
+		}	
+	})	
 });
 
 // return username function?
