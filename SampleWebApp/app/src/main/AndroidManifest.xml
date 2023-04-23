@@ -22,6 +22,7 @@
         <activity android:name=".CreateAccountActivity"></activity>
         <activity android:name=".RequestOwnership2Activity"></activity>
         <activity android:name=".AcceptedActivity"></activity>
+        <activity android:name=".DonateActicity"></activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

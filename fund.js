@@ -13,6 +13,7 @@ var fundSchema = new Schema({
     description: String,
     goal: Number,
     progress: Number,
+    completion: Number,
     owners: [ObjectId],
     contributor_log: [{
         contributor_id: ObjectId,
@@ -21,7 +22,6 @@ var fundSchema = new Schema({
     }],
     location: String,
     creationDate: Date
-    // tags : [String]
     });
 
 // export fundSchema as a class called Fund

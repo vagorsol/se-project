@@ -14,25 +14,25 @@ mongoose.connect(
 	  useNewUrlParser: true,
 	  useUnifiedTopology: true
 	}
-  ); 
+); 
 
-  const db = mongoose.connection;
-  db.on("error", console.error.bind(console, "connection error: "));
-  db.once("open", function () {
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error: "));
+db.once("open", function () {
 	console.log("Connected successfully");
 });
 
-// import the Fund class from Fund.js
+// import classes
 var Fund = require('./Fund.js');
-// import the contributor class from contributor.js
-var Contributor = require('./Contributor.js');
-//import fundOwner from fundOwner.js
 var FundOwner = require('./FundOwner.js');
+var FundForm = require('./FundForm.js');
+var Contributor = require('./Contributor.js');
+
 // value to hold name of Fund to edit
 var fundID;
 // value to hold name of contributor to edit 
 var contributorID;
-var FundForm = require('./FundForm.js');
+
 
 /**
  * Gets the fund with the exact entered name.
@@ -87,7 +87,7 @@ app.use('/newFundForm', (req,res)=>{
 			}
 		} ); 
 	}
-	);
+);
 
 /**
  * This is where the admin can go to check through funds
@@ -130,6 +130,7 @@ app.use('/allFundForms', (req, res) => {
 		}
 	    }).sort({ 'user': 'asc' }); // this sorts them BEFORE rendering the results
 });
+
 /*
 this adds the fund to the fund owner collection
 */
@@ -171,24 +172,22 @@ app.use('/delete', (req, res) => {
     res.redirect('/allFundForms');
 });
 
-	// endpoint for showing all the people
-	app.use('/allFundOwners', (req, res) => {
+// endpoint for showing all the people
+app.use('/allFundOwners', (req, res) => {
     
-		// find all the Fund objects in the database
-		FundOwner.find( {}, (err, fundowners) => {
-			if (err) {
-				res.type('html').status(200);
-				console.log('uh oh' + err);
-				res.write(err);
-			}
-			else {
-				if (fundowners.length == 0) {
-				res.type('html').status(200);
-				res.write('There are no funds');
-				res.end();
-				return;
-				}
-				else {
+	// find all the Fund objects in the database
+	FundOwner.find( {}, (err, fundowners) => {
+		if (err) {
+			res.type('html').status(200);
+			console.log('uh oh' + err);
+			res.write(err);
+		} else {
+			if (fundowners.length == 0) {
+			res.type('html').status(200);
+			res.write('There are no funds');
+			res.end();
+			return;
+			} else {
 				res.type('html').status(200);
 				res.write('Here are the fundOwners in the database:');
 				res.write('<ul>');
@@ -201,17 +200,12 @@ app.use('/delete', (req, res) => {
 				});
 				res.write('</ul>');
 				res.end();
-				}
 			}
-			}).sort({ 'user': 'asc' }); // this sorts them BEFORE rendering the results
-	});
+		}
+	}).sort({ 'user': 'asc' }); // this sorts them BEFORE rendering the results
+});
 
-/**
- * Modifies a Fund given its name. It gets values from form data and
- * updates and place back in database. Once done, it sends the contributor back to the 
- * view page
- * author @vagorsol
-*/
+// modifies fund given its name
 app.use('/modify', (req, res)=> {
 	var filter = fundID;  // Bandaid solution for not being able to pass query
 	console.log("Filter: " + filter);
@@ -323,17 +317,15 @@ app.use('/modifycontributor', (req, res)=>{
 
 });
 
-
-/**
- * Creates a new contributor
-*/ 
+// creates a new Fund
 app.use('/add', (req, res) => {
-	// construct the Person from the form data which is in the request body
+	// construct the Fund from the form data which is in the request body
 	var newFund = new Fund ({
 		name: req.body.name,
 		description: req.body.desscription,
 		goal: req.body.goal,
 		progress: 0,
+		completion: 0,
 		owners: [],
 		contributor_log: [],
 		location: req.body.location,
@@ -400,6 +392,46 @@ app.use('/allFunds', (req, res) => {
 	    }) 
 });
 
+// endpoint for sorting funds by progress
+// @author bho
+app.use('/allprogress', (req, res) => { // PLEASE CHECK IF IT NEEDS MODIFICATIONS
+    
+	// find all the Fund objects in the database
+	Person.find( {}, (err, funds) => {
+		if (err) {
+		    res.type('html').status(200);
+		    console.log('uh oh' + err);
+		    res.write(err);
+		}
+		else {
+		    if (persons.length == 0) {
+			res.type('html').status(200);
+			res.write('There are no funds');
+			res.end();
+			return;
+		    }
+		    else {
+			res.type('html').status(200);
+			res.write('Here are the funds in the database:');
+			res.write('<ul>');
+			// show all the people
+			persons.forEach( (fund) => {
+			    res.write('<li>');
+				res.write('Name: ' + fund.name + '; Goal: ' + fund.goal + '; Progress: ' + fund.progress +
+				'; Completion: ' + fund.completion + '% ; Owners: ' + fund.ownerName);
+			    res.write(" <a href=\"/delete?name=" + person.name + "\">[Delete]</a>");
+			    res.write('</li>');
+					 
+			});
+			res.write('</ul>');
+			res.end();
+		    }
+		}
+	}).sort(function (x, y) { 
+		return x.completion - y.completion; // completion = fund.progress / (fund.goal * 1.0) * 100
+	});
+});
+
 // endpoint for deleting a fund
 app.use('/deleteFund', (req, res) => {
 	var filter = req.query.name;
@@ -412,10 +444,10 @@ app.use('/deleteFund', (req, res) => {
 });
 
 // endpoint for showing all the Contributors
-app.use('/allcontributors', (req, res) => {
+app.use('/allContributors', (req, res) => {
     
 	// find all the Person objects in the database
-	contributor.find().then((contributors, err) => {
+	Contributor.find().then((contributors, err) => {
 		if (err) {
 		    res.type('html').status(200);
 		    console.log('uh oh' + err);
@@ -439,6 +471,7 @@ app.use('/allcontributors', (req, res) => {
 			    res.write('<li>');
 			    res.write('Name: ' + contributor.name + '; contributorname: ' + contributor.contributorname);
 			    // this creates a link to the /delete endpoint
+				console.log(contributor);
 				console.log("contributorname: " + contributor.contributorname);
 			    res.write(" <a href=\"/editcontributor?contributorname=" + contributor.contributorname + "\">[Edit]</a>");
 				res.write(" <a href=\"/deletecontributor?contributorname=" + contributor.contributorname + "\">[Delete]</a>");
@@ -456,7 +489,7 @@ app.use('/allcontributors', (req, res) => {
 // endpoint for deleting a contributor
 app.use('/deletecontributor', (req, res) => {
 	var filter = req.query.contributorname;
-	contributor.deleteOne({contributorname: filter}).then((err) => {
+	Contributor.deleteOne({contributorname: filter}).then((err) => {
 		if(err){
 			res.write('Unexpected Error!');
 		} 
@@ -464,6 +497,7 @@ app.use('/deletecontributor', (req, res) => {
 	res.redirect('/allcontributors');
 });
 
+// endpoint for creating a fund
 app.use('/createFund', (req, res) => {
 	// construct the Fund from the form data which is in the request body
 	var newFund = new Fund ({
@@ -490,7 +524,7 @@ app.use('/createFund', (req, res) => {
 // endpoint for adding a new Contributor
 app.use('/newcontributor', (req, res) => {
 	// construct the Person from the form data which is in the request body
-	var newcontributor = new contributor({
+	var newcontributor = new Contributor({
 		contributorname: req.body.contributorname,
 		password: req.body.password,
 		name: req.body.name,
@@ -517,6 +551,215 @@ app.use('/newcontributor', (req, res) => {
 
 );
 
+// endpoint for contributing money to a fund
+app.use('/addToFund', (req, res) => {
+	var fundname = {'name' : req.query.fund};
+	var donationAmt = req.query.donation;
+	var username = {'username' : req.query.username}; // {'username' : req.user.username}; // todo: check if "req.user.username" is right here
+	var fundID;
+	// update fund
+	Fund.findOne(fundname).then((fund, err) => {
+		if (err) {
+			res.send('Unexpected Error!');
+		} else if (!fund || fund == null) {
+			// send message that there is no such fund
+			res.type('html').status(200);
+
+			res.send('No such fund exists!');
+		} else {
+			fundID = fund.id;
+			// update fund progress
+			console.log(fund.id);
+			fund.progress =  parseInt(fund.progress) + parseInt(donationAmt);
+			fund.completion = parseInt(fund.progress) / parseInt(fund.goal);
+
+			// if there is no contribution log, create one. otherwise, update
+			if (!fund.contribution_log || fund.contribution_log == null) {
+				fund.contribution_log = [{
+					contributor_id: username,
+					contribution: donationAmt,
+					date: new Date()
+				}];
+			} else {
+				fund.contribution_log.push({
+					contributor_id: username,
+					contribution: donationAmt,
+					date: new Date()
+				});
+			}
+			
+			// Update progress
+			Fund.findByIdAndUpdate({_id: fund.id}, {progress: fund.progress}).then((err, doc) => {
+				if(err){
+					res.write('Unexpected Error!');
+				} else{
+					res.write('Updated Fund Progress!');
+					console.log("Updated Fund Progress! " + fund.progress);
+				}
+			});
+
+			// update contribution
+			Fund.findByIdAndUpdate({_id: fund.id}, {contribution_log: fund.contribution_log}).then((err, doc) => {
+				if(err){
+					res.write('Unexpected Error!');
+				} else{
+					res.write('Updated Fund Contribution Log!');
+					console.log("Updated Fund Contribution Log! " + fund.contribution_log);
+				}
+			});
+		}
+	})
+
+	// update user
+	Contributor.findOne(username).then((contributor, err) => {
+		if (err) {
+			res.send('Unexpected Error!');
+		} else if (!contributor || contributor == null) {
+			// send message that there is no such fund
+			res.type('html').status(200);
+
+			res.send('No such contributor exists!');
+			console.log(username);
+		} else {
+			// if there is no contribution log, create one. otherwise, update
+			if (!contributor.contribution_log || contributor.contribution_log == null) {
+				contributor.contribution_log = [{
+					fundId: fundID,
+					fudnName : fundname,
+					contribution: donationAmt,
+					date: new Date()
+				}];
+			} else {
+				contributor.contribution_log.push({
+					fundId: fundID,
+					fundName: fundname,
+					contribution: donationAmt,
+					date: new Date()
+				});
+			}
+			// console.log("User History Log: " + contributor.contribution_log);
+
+			// update progress
+			Contributor.findByIdAndUpdate({_id: contributor.id}, {contribution_log: contributor.contribution_log}).then((err, doc) => {
+				if(err){
+					res.write('Unexpected Error!');
+				} else{
+					res.write("Updated Contributor's Contribution Log!");
+					console.log("Updated Contributor's Contribution Log! " + contributor.contribution_log);
+				}
+			});
+
+		}
+		res.type('html').status(200);
+		res.write("<p> <a href=\"/\">[Return Home]</a>");
+		res.end();
+	})
+});
+
+app.use('/contributionHistory', (req, res) => {
+	var username = {'username' : req.query.username} // {'username' : req.user.username};
+	contributionHistory = [];
+
+	Contributor.findOne(username).then((contributor, err) => {
+		var contributionHistory = []
+		if (err) {
+			console.log(err);
+			res.json([]);
+		} else if (!contributor || contributor == null) {
+			// send empty json
+			res.json([]);
+		} else {
+			// if there is no contribution log, create one. otherwise, update
+			if (!contributor.contribution_log || contributor.contribution_log == null) {
+				// send empty json
+				res.json([])
+			} else {
+				contributor.contribution_log.forEach((i) => {
+					if (i.fundId) {
+						contributionHistory.unshift({
+							"fundId" : i.fundId,
+							"contribution" : i.contribution,
+							"date" : i.date
+						})
+					}
+				});
+				res.send(contributionHistory);
+			}	
+		}
+	})	
+});
+
+// return username function
+app.use('/getUsername', (req, res) => {
+	if (req.user.username) {
+		res.json({'username' : req.user.username});
+	} else {
+		res.json([]);
+	}
+});
+
+app.use('/viewUser', (req, res) => {
+	// res.write("<p> <a href=\"/modifyUser\">[Modify user information]</a>");????
+	res.write("<p> <a href=\"/addNote\">[Add a note]</a>");
+	res.write("<p> <a href=\"/create\">[Add Fund]</a>");
+	res.write("<p> <a href=\"/allFunds\">[View All Funds]</a>");
+	res.write(" <a href=\"/request\">[Search for a Fund]</a>");
+	res.write("<p> <a href=\"/\">Return Home </a>");
+	res.end(); 
+
+});
+
+// add note
+app.use('/addNote', (req, res) => {
+	// create a JSON object
+	var user = {'username': req.query.username};
+	var note = {'note': req.query.note};
+
+	var filter = fundID;  // Bandaid solution for not being able to pass query
+	console.log("Filter: " + filter);
+	// res.redirect('/public/editfund.html');
+	Fund.findOne({'username': filter}).then((fund, err) =>{
+		// console.log("Fund: " + fund);
+		if (err) {
+			res.send('Unexpected Error!');
+		} else if (!fund || fund == null) {
+			console.log(fund);
+			// send message that there is no such fund
+			res.type('html').status(200);
+
+			res.write('No such username exists!');
+
+			res.write("<p> <a href=\"/viewUser\">[Back to Profile]</a>");
+			res.write("<p> <a href=\"/\">[Return Home]</a>");
+		} else {
+			// if the submitted body isn't empty, update the value
+			if (req.body.note){
+				user.note = req.body.note;
+				user.findByIdAndUpdate({_id: user.id}, {note: user.goal}).then((err, doc) => {
+					if(err){
+						res.write('Unexpected Error!');
+					} else{
+						console.log("Updated note! " + user.note);
+						res.write("<p>Updated + " + user.name + "'s note!");
+					}
+				});
+			}
+
+			res.type('html').status(200);
+			res.write('<p>Changes successfully made to ' + user.name + '!');
+			res.write(" <a href=\"/viewUser\">[Back to Profile]</a>");
+			res.write("<p> <a href=\"/\">[Return Home]</a>");
+		}
+		res.end();
+	})
+	
+	// send it back
+	res.json(data);
+    });
+
+app.use('/clearHistory', (req, res) => {
+
+});
 /***************************************/
 // This is the '/test' endpoint that you can use to check that this works
 app.use('/test', (req, res) => {
@@ -544,5 +787,5 @@ app.get('/edit', (req, res) => {
 	res.redirect('/public/editFund.html'); })
 app.get('/editcontributor', (req, res) => {
 	contributorID = req.query.contributorname;
-	res.redirect('/public/editcontributor.html'); })
+	res.redirect('/public/editUser.html'); })
 app.get('/createcontributor', (req, res) => {res.redirect('/public/newcontributor.html'); })
