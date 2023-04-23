@@ -419,7 +419,6 @@ app.use('/allprogress', (req, res) => { // PLEASE CHECK IF IT NEEDS MODIFICATION
 			    res.write('<li>');
 				res.write('Name: ' + fund.name + '; Goal: ' + fund.goal + '; Progress: ' + fund.progress +
 				'; Completion: ' + fund.completion + '% ; Owners: ' + fund.ownerName);
-			    // // this creates a link to the /delete endpoint
 			    res.write(" <a href=\"/delete?name=" + person.name + "\">[Delete]</a>");
 			    res.write('</li>');
 					 
@@ -472,6 +471,7 @@ app.use('/allContributors', (req, res) => {
 			    res.write('<li>');
 			    res.write('Name: ' + contributor.name + '; contributorname: ' + contributor.contributorname);
 			    // this creates a link to the /delete endpoint
+				console.log(contributor);
 				console.log("contributorname: " + contributor.contributorname);
 			    res.write(" <a href=\"/editcontributor?contributorname=" + contributor.contributorname + "\">[Edit]</a>");
 				res.write(" <a href=\"/deletecontributor?contributorname=" + contributor.contributorname + "\">[Delete]</a>");
@@ -524,7 +524,7 @@ app.use('/createFund', (req, res) => {
 // endpoint for adding a new Contributor
 app.use('/newcontributor', (req, res) => {
 	// construct the Person from the form data which is in the request body
-	var newcontributor = new contributor({
+	var newcontributor = new Contributor({
 		contributorname: req.body.contributorname,
 		password: req.body.password,
 		name: req.body.name,
@@ -555,8 +555,8 @@ app.use('/newcontributor', (req, res) => {
 app.use('/addToFund', (req, res) => {
 	var fundname = {'name' : req.query.fund};
 	var donationAmt = req.query.donation;
-	var username = {'username' : req.user.username}; // todo: check if "req.user.username" is right here
-
+	var username = {'username' : req.query.username}; // {'username' : req.user.username}; // todo: check if "req.user.username" is right here
+	var fundID;
 	// update fund
 	Fund.findOne(fundname).then((fund, err) => {
 		if (err) {
@@ -567,8 +567,11 @@ app.use('/addToFund', (req, res) => {
 
 			res.send('No such fund exists!');
 		} else {
+			fundID = fund.id;
 			// update fund progress
+			console.log(fund.id);
 			fund.progress =  parseInt(fund.progress) + parseInt(donationAmt);
+			fund.completion = parseInt(fund.progress) / parseInt(fund.goal);
 
 			// if there is no contribution log, create one. otherwise, update
 			if (!fund.contribution_log || fund.contribution_log == null) {
@@ -621,13 +624,15 @@ app.use('/addToFund', (req, res) => {
 			// if there is no contribution log, create one. otherwise, update
 			if (!contributor.contribution_log || contributor.contribution_log == null) {
 				contributor.contribution_log = [{
-					fund_id: fund,
+					fundId: fundID,
+					fudnName : fundname,
 					contribution: donationAmt,
 					date: new Date()
 				}];
 			} else {
 				contributor.contribution_log.push({
-					contributor_id: username,
+					fundId: fundID,
+					fundName: fundname,
 					contribution: donationAmt,
 					date: new Date()
 				});
@@ -652,9 +657,9 @@ app.use('/addToFund', (req, res) => {
 });
 
 app.use('/contributionHistory', (req, res) => {
-	var username = {'username' : req.user.username};
+	var username = {'username' : req.query.username} // {'username' : req.user.username};
+	contributionHistory = [];
 
-	// update user
 	Contributor.findOne(username).then((contributor, err) => {
 		var contributionHistory = []
 		if (err) {
@@ -670,15 +675,21 @@ app.use('/contributionHistory', (req, res) => {
 				res.json([])
 			} else {
 				contributor.contribution_log.forEach((i) => {
-					contributionHistory.unshift(i); // i don't know what it's actually sending. hm. 
+					if (i.fundId) {
+						contributionHistory.unshift({
+							"fundId" : i.fundId,
+							"contribution" : i.contribution,
+							"date" : i.date
+						})
+					}
 				});
 				res.send(contributionHistory);
 			}	
 		}
-	})
+	})	
 });
 
-// return username function?
+// return username function
 app.use('/getUsername', (req, res) => {
 	if (req.user.username) {
 		res.json({'username' : req.user.username});
@@ -698,7 +709,7 @@ app.use('/viewUser', (req, res) => {
 
 });
 
-// This is the '/test' endpoint that you can use to check that this works
+// add note
 app.use('/addNote', (req, res) => {
 	// create a JSON object
 	var user = {'username': req.query.username};
@@ -746,6 +757,9 @@ app.use('/addNote', (req, res) => {
 	res.json(data);
     });
 
+app.use('/clearHistory', (req, res) => {
+
+});
 /***************************************/
 // This is the '/test' endpoint that you can use to check that this works
 app.use('/test', (req, res) => {

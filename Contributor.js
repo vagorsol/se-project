@@ -14,6 +14,7 @@ var contributorSchema = new Schema({
     name: String,
     contribution_log : [{
         fundId : ObjectId,
+        fundName : String,
         contribution : Number,
         date : Date
     }]
