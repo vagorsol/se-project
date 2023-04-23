@@ -571,6 +571,7 @@ app.use('/addToFund', (req, res) => {
 			// update fund progress
 			console.log(fund.id);
 			fund.progress =  parseInt(fund.progress) + parseInt(donationAmt);
+			fund.completion = parseInt(fund.progress) / parseInt(fund.goal);
 
 			// if there is no contribution log, create one. otherwise, update
 			if (!fund.contribution_log || fund.contribution_log == null) {
@@ -620,17 +621,18 @@ app.use('/addToFund', (req, res) => {
 			res.send('No such contributor exists!');
 			console.log(username);
 		} else {
-			console.log("Fund id: " + fundID);
 			// if there is no contribution log, create one. otherwise, update
 			if (!contributor.contribution_log || contributor.contribution_log == null) {
 				contributor.contribution_log = [{
 					fundId: fundID,
+					fudnName : fundname,
 					contribution: donationAmt,
 					date: new Date()
 				}];
 			} else {
 				contributor.contribution_log.push({
 					fundId: fundID,
+					fundName: fundname,
 					contribution: donationAmt,
 					date: new Date()
 				});
@@ -656,41 +658,38 @@ app.use('/addToFund', (req, res) => {
 
 app.use('/contributionHistory', (req, res) => {
 	var username = {'username' : req.query.username} // {'username' : req.user.username};
-	var contributionHistory = [];
+	contributionHistory = [];
 
 	Contributor.findOne(username).then((contributor, err) => {
+		var contributionHistory = []
 		if (err) {
 			console.log(err);
-		} else if (contributor && contributor != null) {
+			res.json([]);
+		} else if (!contributor || contributor == null) {
+			// send empty json
+			res.json([]);
+		} else {
 			// if there is no contribution log, create one. otherwise, update
-			if (contributor.contribution_log && contributor.contribution_log != null) {
+			if (!contributor.contribution_log || contributor.contribution_log == null) {
+				// send empty json
+				res.json([])
+			} else {
 				contributor.contribution_log.forEach((i) => {
-					fundID = i.fundId; 
-					Fund.findById(fundID).then((fund, err) => {
-						if (err) {
-							console.log(err);
-						} else {
-							// console.log("found fund!: " + fund);
-							if (fund && fund != null) {
-								// console.log(fund.name);
-								contributionHistory.unshift({
-									"fundname" : fund.name,
-									"contribution" : i.contribution,
-									"date" : i.date
-								});
-								console.log(contributionHistory);
-							}
-						}
-					});
-				});	
-				console.log(contributionHistory);
+					if (i.fundId) {
+						contributionHistory.unshift({
+							"fundId" : i.fundId,
+							"contribution" : i.contribution,
+							"date" : i.date
+						})
+					}
+				});
 				res.send(contributionHistory);
-			}
-		}	
+			}	
+		}
 	})	
 });
 
-// return username function?
+// return username function
 app.use('/getUsername', (req, res) => {
 	if (req.user.username) {
 		res.json({'username' : req.user.username});
@@ -699,7 +698,7 @@ app.use('/getUsername', (req, res) => {
 	}
 });
 
-// This is the '/test' endpoint that you can use to check that this works
+// add note
 app.use('/addNoteForUser', (req, res) => {
 	// create a JSON object
 	var user = {'username': req.query.username};
@@ -770,6 +769,9 @@ app.use('/addNoteForUser', (req, res) => {
 	res.json(data);
     });
 
+app.use('/clearHistory', (req, res) => {
+
+});
 /***************************************/
 // This is the '/test' endpoint that you can use to check that this works
 app.use('/test', (req, res) => {
