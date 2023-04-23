@@ -687,8 +687,19 @@ app.use('/getUsername', (req, res) => {
 	}
 });
 
+app.use('/viewUser', (req, res) => {
+	// res.write("<p> <a href=\"/modifyUser\">[Modify user information]</a>");????
+	res.write("<p> <a href=\"/addNote\">[Add a note]</a>");
+	res.write("<p> <a href=\"/create\">[Add Fund]</a>");
+	res.write("<p> <a href=\"/allFunds\">[View All Funds]</a>");
+	res.write(" <a href=\"/request\">[Search for a Fund]</a>");
+	res.write("<p> <a href=\"/\">Return Home </a>");
+	res.end(); 
+
+});
+
 // This is the '/test' endpoint that you can use to check that this works
-app.use('/addNoteForUser', (req, res) => {
+app.use('/addNote', (req, res) => {
 	// create a JSON object
 	var user = {'username': req.query.username};
 	var note = {'note': req.query.note};
@@ -706,8 +717,8 @@ app.use('/addNoteForUser', (req, res) => {
 			res.type('html').status(200);
 
 			res.write('No such username exists!');
-			res.write("<p> <a href=\"/allFunds\">[View All Funds]</a>");
-			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
+
+			res.write("<p> <a href=\"/viewUser\">[Back to Profile]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
 		} else {
 			// if the submitted body isn't empty, update the value
@@ -725,33 +736,10 @@ app.use('/addNoteForUser', (req, res) => {
 
 			res.type('html').status(200);
 			res.write('<p>Changes successfully made to ' + user.name + '!');
-			res.write("<p> <a href=\"/allFunds\">[View All Funds]</a>");
-			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
+			res.write(" <a href=\"/viewUser\">[Back to Profile]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
 		}
 		res.end();
-	});
-    // update user
-	Contributor.findOne(username).then((contributor, err) => {
-		var contributionHistory = []
-		if (err) {
-			console.log(err);
-			res.json([]);
-		} else if (!contributor || contributor == null) {
-			// send empty json
-			res.json([]);
-		} else {
-			// if there is no contribution log, create one. otherwise, update
-			if (!contributor.contribution_log || contributor.contribution_log == null) {
-				// send empty json
-				res.json([])
-			} else {
-				contributor.contribution_log.forEach((i) => {
-					contributionHistory.unshift(i); // i don't know what it's actually sending. hm. 
-				});
-				res.send(contributionHistory);
-			}	
-		}
 	})
 	
 	// send it back
