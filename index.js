@@ -31,7 +31,6 @@ mongoose.connect(
 	  useUnifiedTopology: true
 	}
   ); 
-
   const db = mongoose.connection;
   db.on("error", console.error.bind(console, "connection error: "));
   db.once("open", function () {
@@ -40,7 +39,7 @@ mongoose.connect(
 
 // import classes
 var Fund = require('./Fund.js');
-// import the contributor class from contributor.js
+// import the Contributor class from Contributor.js
 var Contributor = require('./Contributor.js');
 // Import the owner class from owner.js
 var Owner = require('./Owner.js');
@@ -156,6 +155,10 @@ app.use('/allFundForms', (req, res) => {
 
 /*
 this adds the fund to the fund owner collection
+ * Modifies a Fund given its name. It gets values from form data and
+ * updates and place back in database. Once done, it sends the Contributor back to the 
+ * view page
+ * author @vagorsol
 */
 app.use('/addFundOwner', (req, res) => {
 	var newFundOwner = new FundOwner ({
@@ -548,10 +551,10 @@ app.use('/allUsers', (req, res) => {
 	    }) 
 });
 
-// endpoint for deleting a contributor
-app.use('/deletecontributor', (req, res) => {
-	var filter = req.query.contributorname;
-	contributor.deleteOne({contributorname: filter}).then((err) => {
+// endpoint for deleting a fund
+app.use('/deleteFund', (req, res) => {
+	var filter = req.query.name;
+	Fund.deleteOne({name: filter}).then((err) => {
 		if(err){
 			res.write('Unexpected Error!');
 		} 
@@ -559,33 +562,18 @@ app.use('/deletecontributor', (req, res) => {
 	res.redirect('/allFunds');
 });
 
-// endpoint for adding a new Contributor
-app.use('/newcontributor', (req, res) => {
-	// construct the Person from the form data which is in the request body
-	var newcontributor = new contributor({
-		contributorname: req.body.contributorname,
-		password: req.body.password,
-		name: req.body.name,
-	    });
-	console.log("contributor created");
-	// save the person to the database
-	newcontributor.save().then( (err) => { 
-		res.type('html').status(200);
-		if (!err) {
-		    res.write('uh oh: ' + err);
-		    console.log(err);
-		}
-		else {
-		    // display the "successfull created" message
-		    res.write('Successfully added ' + newcontributor.name + ' to the database');
-			res.write(" <a href=\"/create\">[Add Fund]</a>");
-			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
-		}
-		res.write("<p> <a href=\"/\">Return Home </a>");
-		res.end(); 
-	    } ); 
-    }
-);
+// endpoint for deleting a user
+app.use('/deleteUser', (req, res) => {
+	var filter = req.query.username;
+	Contributor.deleteOne({username: filter}).then((err) => {
+		if(err){
+			res.write('Unexpected Error!');
+		} 
+	});
+	res.redirect('/allUsers');
+});
+
+
 
 // endpoint for contributing money to a fund
 app.use('/addToFund', (req, res) => {
@@ -903,3 +891,4 @@ function isLoggedIn(req, res){
 	}
 }
 })
+

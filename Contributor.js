@@ -1,4 +1,4 @@
-const { ObjectId} = require('mongodb');
+const { ObjectId } = require('mongodb');
 var mongoose = require('mongoose');
 var passportLocalMongoose = require('passport-local-mongoose');
 
