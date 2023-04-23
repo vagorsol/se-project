@@ -831,7 +831,7 @@ app.get('/login',connectEnsureLogin.ensureLoggedOut('/profile'), (req, res, next
 		res.redirect('/public/login.html');
 });
 
-app.post('/login', passport.authenticate('local', {successRedirect: '/view', failureRedirect: '/createUser' }),  function(req, res) {
+app.post('/login', passport.authenticate('local', {successRedirect: '/profile', failureRedirect: '/createUser' }),  function(req, res) {
 	console.log("LOGIN" + req.user);
 	res.redirect('/secret');
 });
@@ -846,6 +846,7 @@ app.get('/profile', connectEnsureLogin.ensureLoggedIn(), (req,res) =>{
 	res.type('html').status(200);
 	res.write("Hello " + req.user.name);
 	res.write("<p> <a href=\"/\">[Return Home]</a>");
+	res.write("<p> <a href=\"/secret\">[Suprise Me]</a>");
 	res.write("<p> <a href=\"/logout\">[Log Out]</a>");
 	res.end();
 });
