@@ -20,14 +20,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         button0.setOnClickListener(this);
 
         // set header text as username
-        Bundle b = getIntent().getExtras();
-        String username = b.getString("Username");
+        String username = getIntent().getStringExtra("User");
+       // String username = b.getString("Username");
 
         // if no username (i.e., not logged in), will be sent to create an account
-        if (username.isEmpty()) {
-            Intent i = new Intent(this, CreateAccountActivity.class);
-            startActivityForResult(i, COUNTER_ACTIVITY_ID);
-        }
+        //if (username.isEmpty()) {
+        //    Intent i = new Intent(this, CreateAccountActivity.class);
+         //   startActivityForResult(i, COUNTER_ACTIVITY_ID);
+        //}
         TextView usernameView = findViewById(R.id.username);
         usernameView.setText("Welcome, " + username);
     }

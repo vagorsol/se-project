@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     EditText passwordText;
     protected String message;
     protected String message2;
+    protected String toSend = "false";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
                             Scanner in = new Scanner(url.openStream());
 
+                            toSend = "true";
+
                         } catch (Exception e) {
                             e.printStackTrace();
                             message = e.toString();
@@ -75,10 +78,14 @@ public class MainActivity extends AppCompatActivity {
                     // this waits for up to 2 seconds
                     // it's a bit of a hack because it's not truly asynchronous
                     // but it should be okay for our purposes (and is a lot easier)
-                    executor.awaitTermination(2, TimeUnit.SECONDS);
+                    executor.awaitTermination(5, TimeUnit.SECONDS);
 
                     // now we can set the status in the TextView
                     tv.setText( "added: " + message + " " + message2 );
+                    Intent i = new Intent(this, FundsViewActivity.class);
+                    i.putExtra("message","true");
+                    i.putExtra("message2", message);
+                    startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 } catch (Exception e) {
 
                     e.printStackTrace();
@@ -88,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.guest:
                 // TODO: implement guest perms
                 Intent i = new Intent(this, FundsViewActivity.class);
+                i.putExtra("message",toSend);
                 startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 break;
             case R.id.ownerRequest:
