@@ -381,6 +381,7 @@ app.use('/newUser', (req, res) => {
 		password: req.body.password,
 		name: req.body.name,
 		contribution_log: [],
+		note: "",
 	    });
 
 	// validate that the username has not been taken yet
@@ -391,7 +392,8 @@ app.use('/newUser', (req, res) => {
 			res.write(err);
 		} else if (user == null) {
 			//save the person to the database
-			Contributor.register({username : newUser.username, password : newUser.password, name: newUser.name, contribution_log: newUser.contribution_log, active : false}, newUser.password);
+			Contributor.register({username : newUser.username, password : newUser.password, name: newUser.name,
+				 contribution_log: newUser.contribution_log, note: newUser.note, active : false}, newUser.password);
 			// display the "successfull created" message
 			res.type('html').status(200);
 			res.write('Successfully added ' + newUser.name + ' to the database');
@@ -842,6 +844,7 @@ app.get('/newUserAndroid', (req, res) => {
 		password: req.query.password,
 		name: req.query.name,
 		contribution_log: [],
+		note: "",
 	    });
 
 	// validate that the username has not been taken yet
@@ -851,7 +854,7 @@ app.get('/newUserAndroid', (req, res) => {
 			res.json({'status' : 'failure'});
 		} else if (user == null) {
 			//save the person to the database
-			Contributor.register({username : newUser.username, password : newUser.password, name: newUser.name, contribution_log: newUser.contribution_log, active : false}, newUser.password);
+			Contributor.register({username : newUser.username, password : newUser.password, name: newUser.name, contribution_log: newUser.contribution_log, note: newUser.note, active : false}, newUser.password);
 			// display the "successfull created" message
 			res.json({'status' : 'success'});
 		} 
