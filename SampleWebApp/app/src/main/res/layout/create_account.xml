@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -26,7 +26,21 @@
             android:gravity="center"
             android:text="Username:" />
 
-        <EditText android:id="@+id/username"
+        <EditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:text="Name:" />
+
+        <EditText
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
@@ -38,7 +52,8 @@
             android:gravity="center"
             android:text="Password:" />
 
-        <EditText android:id="@+id/password"
+        <EditText
+            android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -47,6 +62,13 @@
             android:layout_height="wrap_content"
             android:text="Create"
             android:onClick="onConnectButtonClick"/>
+
+        <Button
+            android:id="@+id/homepage"
+            android:layout_width="203dp"
+            android:layout_height="wrap_content"
+            android:onClick="onConnectButtonClick"
+            android:text="Back" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
