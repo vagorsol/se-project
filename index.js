@@ -6,6 +6,22 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Set up Session for state persitance
+var session = require('express-session');
+app.use(session({
+	secret: 'SoftTeamIsCoool',
+	resave: false,
+	saveUninitialized: true,
+	cookie: {maxAge : 60 * 60 * 1000} // 1 Hour refresh rate for signing in
+
+}));
+
+// Set up Passport for authentication
+var passport = require('passport');
+app.use(passport.initialize());
+app.use(passport.session());
+var connectEnsureLogin = require('connect-ensure-login');
+
 // set up MongoDB and Mongoose
 var mongoose = require('mongoose');
 mongoose.connect(
@@ -14,25 +30,32 @@ mongoose.connect(
 	  useNewUrlParser: true,
 	  useUnifiedTopology: true
 	}
-); 
-
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error: "));
-db.once("open", function () {
+  ); 
+  const db = mongoose.connection;
+  db.on("error", console.error.bind(console, "connection error: "));
+  db.once("open", function () {
 	console.log("Connected successfully");
 });
 
 // import classes
 var Fund = require('./Fund.js');
-var FundOwner = require('./FundOwner.js');
-var FundForm = require('./FundForm.js');
+// import the Contributor class from Contributor.js
 var Contributor = require('./Contributor.js');
+// Import the owner class from owner.js
+var Owner = require('./Owner.js');
+var FundForm = require("./FundForm.js");
+var FundOwner = require("./FundOwner.js");
 
 // value to hold name of Fund to edit
 var fundID;
-// value to hold name of contributor to edit 
-var contributorID;
+// value to hold name of Contributor to edit 
+var ContributorID;
+// value to hold name of Owner to edit 
+var OwnerID;
 
+passport.use(Contributor.createStrategy());
+passport.serializeUser(Contributor.serializeUser());
+passport.deserializeUser(Contributor.deserializeUser());
 
 /**
  * Gets the fund with the exact entered name.
@@ -59,10 +82,10 @@ app.use('/view', (req, res)=> {
 			res.write(" <a href=\"/edit?name=" + fund.name + "\">[Edit]</a>");
 		}
 		res.write("<p> <a href=\"/\">[Return Home]</a>");
+		if(req.user) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 		res.end();
 	});
 });
-
 /**
  * used to create a new form so that when people ask to be a fund owner they 
  * can be accepted or denied
@@ -88,7 +111,6 @@ app.use('/newFundForm', (req,res)=>{
 		} ); 
 	}
 );
-
 /**
  * This is where the admin can go to check through funds
  * and accept or delete forms
@@ -130,9 +152,12 @@ app.use('/allFundForms', (req, res) => {
 		}
 	    }).sort({ 'user': 'asc' }); // this sorts them BEFORE rendering the results
 });
-
 /*
 this adds the fund to the fund owner collection
+ * Modifies a Fund given its name. It gets values from form data and
+ * updates and place back in database. Once done, it sends the Contributor back to the 
+ * view page
+ * author @vagorsol
 */
 app.use('/addFundOwner', (req, res) => {
 	var newFundOwner = new FundOwner ({
@@ -154,7 +179,6 @@ app.use('/addFundOwner', (req, res) => {
 		} );
 	
 });
-
 //this deletes the fund form if the person is not accepted.
 app.use('/delete', (req, res) => {
     var filter = {'name' : req.query.name};
@@ -171,7 +195,6 @@ app.use('/delete', (req, res) => {
 	});
     res.redirect('/allFundForms');
 });
-
 // endpoint for showing all the people
 app.use('/allFundOwners', (req, res) => {
     
@@ -204,7 +227,6 @@ app.use('/allFundOwners', (req, res) => {
 		}
 	}).sort({ 'user': 'asc' }); // this sorts them BEFORE rendering the results
 });
-
 // modifies fund given its name
 app.use('/modify', (req, res)=> {
 	var filter = fundID;  // Bandaid solution for not being able to pass query
@@ -258,65 +280,65 @@ app.use('/modify', (req, res)=> {
 	});
 
 });
-
 /**
- * Modifies a Contributor given its contributorname. It gets values from form data and
- * updates and place back in database. Once done, it sends the contributor back to the 
+ * Modifies a Contributor given its Contributorname. It gets values from form data and
+ * updates and place back in database. Once done, it sends the Contributor back to the 
  * view page
  * author @jshand18
 */
-app.use('/modifycontributor', (req, res)=>{
-	var filter = contributorID;  // Bandaid solution for not being able to pass query
-	console.log("contributor ID (to edit): " + filter);
-	contributor.findOne({contributorname: filter}).then((contributor, err) =>{
+app.use('/modifyUser', (req, res)=>{
+	var filter = userID;  // Bandaid solution for not being able to pass query
+	console.log("User ID (to edit): " + filter);
+	Contributor.findOne({username: filter}).then((user, err) =>{
 		if (err) {
 			res.send('Unexpected Error!');
-		} else if (!contributor || contributor == null) {
-			console.log(contributor);
+		} else if (!user || user == null) {
+			console.log(user);
 			// send message that there is no such fund
 			res.type('html').status(200);
 
-			res.write('No such contributor exists!');
+			res.write('No such user exists!');
 			res.write(" <a href=\"/allFunds\">[View All Funds]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 			res.end();
 		} else {
 			// if the submitted body isn't empty, update the value
 			if (req.body.name){
-				contributor.name = req.body.name;
-				contributor.findByIdAndUpdate({_id: contributor.id}, {name: contributor.name}).then((err) => {
+				user.name = req.body.name;
+				Contributor.findByIdAndUpdate({_id: user.id}, {name: user.name}).then((err) => {
 					if(err){
 						res.write('Unexpected Error!');
 					} else{
-						console.log("Updated Name! " + contributor.name);
-						res.write("<p>Updated + " + contributor.contributorname + "'s Name: " + contributor.name + "!");
+						console.log("Updated Name! " + user.name);
+						res.write("<p>Updated + " + user.username + "'s Name: " + user.name + "!");
 					}
 				});
 			}
 			if (req.body.password){
-				contributor.password = req.body.password; 
-				contributor.findByIdAndUpdate({_id: contributor.id}, {password: contributor.progress}).then((err) => {
+				user.password = req.body.password; 
+				Contributor.findByIdAndUpdate({_id: user.id}, {password: user.progress}).then((err) => {
 					if(err){
 						res.write('Unexpected Error!');
 					} else{
-						console.log("Updated Password! " + contributor.password);
-						res.write("<p>Updated + " + contributor.contributorname + "'s Password: " + contributor.password + "!");
+						console.log("Updated Password! " + user.password);
+						res.write("<p>Updated + " + user.username + "'s Password: " + user.password + "!");
 					}
 				});
 			}
 
 			res.type('html').status(200);
-			res.write('<p>Changes successfully made to ' + contributor.contributorname + '!');
-			res.write("<p> <a href=\"/allcontributors\">[View All contributors]</a>");
+			res.write('<p>Changes successfully made to ' + user.username + '!');
+			res.write("<p> <a href=\"/allUsers\">[View All Users]</a>");
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 			res.end();
 		}
 	});
 
 });
-
 // creates a new Fund
 app.use('/add', (req, res) => {
 	// construct the Fund from the form data which is in the request body
@@ -346,11 +368,43 @@ app.use('/add', (req, res) => {
 			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 		}
 		res.write("<p> <a href=\"/\">[Return Home]</a>");
+		if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 		res.end(); 
 	    } ); 
     }
     );
+// endpoint for adding a new Contributor
+app.use('/newUser', (req, res) => {
+	// construct the Person from the form data which is in the request body
+	var newUser = new Contributor({
+		username: req.body.username,
+		password: req.body.password,
+		name: req.body.name,
+		contribution_log: [],
+	    });
 
+	// validate that the username has not been taken yet
+	Contributor.findOne({username: newUser.username}).then((user, err) => {
+		res.type('html').status(200);
+		if (err) {
+			console.log('Error: ' + err);
+			res.write(err);
+		} else if (user == null) {
+			//save the person to the database
+			Contributor.register({username : newUser.username, password : newUser.password, name: newUser.name, contribution_log: newUser.contribution_log, active : false}, newUser.password);
+			// display the "successfull created" message
+			res.type('html').status(200);
+			res.write('Successfully added ' + newUser.name + ' to the database');
+			res.write(" <a href=\"/create\">[Add Fund]</a>");
+			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
+			res.write("<p> <a href=\"/\">Return Home </a>");
+			res.end(); 
+		} 
+		else {
+			res.redirect("/public/registerOnFailure.html");
+		}
+	});
+});
 // endpoint for showing all the Funds
 app.use('/allFunds', (req, res) => {
     
@@ -386,12 +440,12 @@ app.use('/allFunds', (req, res) => {
 			});
 			res.write('</ul>');
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
 			res.end();
 		    }
 		}
 	    }) 
 });
-
 // endpoint for sorting funds by progress
 // @author bho
 app.use('/allprogress', (req, res) => { // PLEASE CHECK IF IT NEEDS MODIFICATIONS
@@ -431,7 +485,6 @@ app.use('/allprogress', (req, res) => { // PLEASE CHECK IF IT NEEDS MODIFICATION
 		return x.completion - y.completion; // completion = fund.progress / (fund.goal * 1.0) * 100
 	});
 });
-
 // endpoint for deleting a fund
 app.use('/deleteFund', (req, res) => {
 	var filter = req.query.name;
@@ -442,21 +495,20 @@ app.use('/deleteFund', (req, res) => {
 	});
 	res.redirect('/allFunds');
 });
-
 // endpoint for showing all the Contributors
-app.use('/allContributors', (req, res) => {
+app.use('/allUsers', (req, res) => {
     
 	// find all the Person objects in the database
-	Contributor.find().then((contributors, err) => {
+	Contributor.find().then((users, err) => {
 		if (err) {
 		    res.type('html').status(200);
 		    console.log('uh oh' + err);
 		    res.send(err);
 		}
 		else {
-		    if (!contributors || contributors == null || contributors.length == 0) {
+		    if (!users || users == null || users.length == 0) {
 			res.type('html').status(200);
-			res.write('There are no contributors');
+			res.write('There are no users');
 			res.write("<p> <a href=\"/\">Return Home </a>");
 			res.end();
 			return;
@@ -466,15 +518,14 @@ app.use('/allContributors', (req, res) => {
 			res.write('Here are the people in the database:');
 			res.write('<ul>');
 			// show all the people
-			contributors.sort(); // this sorts them BEFORE rendering the results
-			contributors.forEach( (contributor) => {
+			users.sort(); // this sorts them BEFORE rendering the results
+			users.forEach( (user) => {
 			    res.write('<li>');
-			    res.write('Name: ' + contributor.name + '; contributorname: ' + contributor.contributorname);
+			    res.write('Name: ' + user.name + '; Username: ' + user.username);
 			    // this creates a link to the /delete endpoint
-				console.log(contributor);
-				console.log("contributorname: " + contributor.contributorname);
-			    res.write(" <a href=\"/editcontributor?contributorname=" + contributor.contributorname + "\">[Edit]</a>");
-				res.write(" <a href=\"/deletecontributor?contributorname=" + contributor.contributorname + "\">[Delete]</a>");
+				console.log("username: " + user.username);
+			    res.write(" <a href=\"/editUser?username=" + user.username + "\">[Edit]</a>");
+				res.write(" <a href=\"/deleteUser?username=" + user.username + "\">[Delete]</a>");
 			    res.write('</li>');
 					 
 			});
@@ -485,72 +536,26 @@ app.use('/allContributors', (req, res) => {
 		}
 	    }) 
 });
-
-// endpoint for deleting a contributor
-app.use('/deletecontributor', (req, res) => {
-	var filter = req.query.contributorname;
-	Contributor.deleteOne({contributorname: filter}).then((err) => {
+// endpoint for deleting a fund
+app.use('/deleteFund', (req, res) => {
+	var filter = req.query.name;
+	Fund.deleteOne({name: filter}).then((err) => {
 		if(err){
 			res.write('Unexpected Error!');
 		} 
 	});
-	res.redirect('/allcontributors');
+	res.redirect('/allFunds');
 });
-
-// endpoint for creating a fund
-app.use('/createFund', (req, res) => {
-	// construct the Fund from the form data which is in the request body
-	var newFund = new Fund ({
-		name: req.query.name,
-		user: req.query.user,
-	    });
-
-	// save the fund to the database
-	newFund.save( (err) => { 
-		if (err) {
-		    res.type('html').status(200);
-		    res.write('uh oh: ' + err);
-		    console.log(err);
-		    res.end();
-		}
-		else {
-		    // display the "successfull created" message
-		    res.send('successfully added ' + newFund.name + ' to the database');
-		}
-	    } ); 
-    }
-    );
-
-// endpoint for adding a new Contributor
-app.use('/newcontributor', (req, res) => {
-	// construct the Person from the form data which is in the request body
-	var newcontributor = new Contributor({
-		contributorname: req.body.contributorname,
-		password: req.body.password,
-		name: req.body.name,
-	    });
-	console.log("contributor created");
-	// save the person to the database
-	newcontributor.save().then( (err) => { 
-		res.type('html').status(200);
-		if (!err) {
-		    res.write('uh oh: ' + err);
-		    console.log(err);
-		}
-		else {
-		    // display the "successfull created" message
-		    res.write('Successfully added ' + newcontributor.name + ' to the database');
-			res.write(" <a href=\"/create\">[Add Fund]</a>");
-			res.write(" <a href=\"/request\">[Search for a Fund]</a>");
-		}
-		res.write("<p> <a href=\"/\">Return Home </a>");
-		res.end(); 
-	    } ); 
-    }
-
-
-);
-
+// endpoint for deleting a user
+app.use('/deleteUser', (req, res) => {
+	var filter = req.query.username;
+	Contributor.deleteOne({username: filter}).then((err) => {
+		if(err){
+			res.write('Unexpected Error!');
+		} 
+	});
+	res.redirect('/allUsers');
+});
 // endpoint for contributing money to a fund
 app.use('/addToFund', (req, res) => {
 	var fundname = {'name' : req.query.fund};
@@ -654,8 +659,18 @@ app.use('/addToFund', (req, res) => {
 		res.write("<p> <a href=\"/\">[Return Home]</a>");
 		res.end();
 	})
+})
+// endpoint for deleting a user
+app.use('/deleteUser', (req, res) => {
+	var filter = req.query.username;
+	Contributor.deleteOne({username: filter}).then((err) => {
+		if(err){
+			res.write('Unexpected Error!');
+		} 
+	});
+	res.redirect('/allUsers');
 });
-
+// endpoint for accessing contribution history
 app.use('/contributionHistory', (req, res) => {
 	var username = {'username' : req.user.username} // {'username' : req.query.username};
 	contributionHistory = [];
@@ -756,7 +771,7 @@ app.use('/addNote', (req, res) => {
 	// send it back
 	res.json(data);
     });
-
+// endpoint for clearing history
 app.use('/clearHistory', (req, res) => {
 
 });
@@ -768,12 +783,99 @@ app.use('/test', (req, res) => {
       	// send it back
 	res.json(data);
     });
+// Testing for login in functionaility
+app.post('/login', passport.authenticate('local', {successRedirect: '/profile', failureRedirect: '/createUser' }),  function(req, res) {
+	console.log("LOGIN" + req.user);
+	res.redirect('/secret');
+});
+
+app.get('/logout', (req, res) => {
+	req.session.destroy((err) => {
+		res.redirect('/'); 
+	  });
+});
+
+app.get('/profile', connectEnsureLogin.ensureLoggedIn(), (req,res) =>{
+	res.type('html').status(200);
+	res.write("Hello " + req.user.name);
+	res.write("<p> <a href=\"/\">[Return Home]</a>");
+	res.write("<p> <a href=\"/secret\">[Suprise Me]</a>");
+	res.write("<p> <a href=\"/logout\">[Log Out]</a>");
+	res.end();
+});
+app.get('/secret', connectEnsureLogin.ensureLoggedIn(), (req,res) => {
+	res.redirect('/public/secret.html');
+});
+
+/** Andriod Backend Routes */
+// Handling logging in from the MainView
+app.get('/loginAndroid', passport.authenticate('local', {
+	successRedirect: '/loginAndroidSuccess', 
+	failureRedirect: '/loginAndroidFailure' 
+}))
+// Sends a message regarding the login success
+app.get('/loginAndroidSuccess', (req, res) =>{
+	res.json({"status" : "success"});
+})
+// Sends a message regarding the login success
+app.get('/loginAndroidFailure', (req, res) =>{
+	res.json({"status" : "failure"});
+})
+// Checking the logged in status
+app.get('/loginStatus', (req, res) => {
+	if(req.user){
+		res.json({'status' : 'true'});
+	} else{
+		res.json({'status' : 'false'});
+	}
+});
+// return username function
+app.use('/getUsername', (req, res) => {
+	if (req.user) {
+		res.json({'username' : req.user.username});
+	} else {
+		res.json([]);
+	}
+});
+app.get('/newUserAndroid', (req, res) => {
+	// construct the Person from the form data which is in the request body
+	var newUser = new Contributor({
+		username: req.query.username,
+		password: req.query.password,
+		name: req.query.name,
+		contribution_log: [],
+	    });
+
+	// validate that the username has not been taken yet
+	Contributor.findOne({username: newUser.username}).then((user, err) => {
+		if (err) {
+			console.log('Error: ' + err);
+			res.json({'status' : 'failure'});
+		} else if (user == null) {
+			//save the person to the database
+			Contributor.register({username : newUser.username, password : newUser.password, name: newUser.name, contribution_log: newUser.contribution_log, active : false}, newUser.password);
+			// display the "successfull created" message
+			res.json({'status' : 'success'});
+		} 
+		else {
+			res.json({'status' : 'failure'});
+		}
+	});
+});
+
+app.get('/newUserAndroidSuccess', (req, res) =>{
+	res.json({"status" : "failure"});
+})
+app.get('/newUserAndroidFailure', (req, res) =>{
+	res.json({"status" : "failure"});
+})
+
+
 
 // This starts the web server on port 3000. 
 app.listen(3000, () => {
 	console.log('Listening on port 3000');
     });
-
 app.use('/public', express.static('public'));
 
 /***************************************/
@@ -789,3 +891,13 @@ app.get('/editcontributor', (req, res) => {
 	contributorID = req.query.contributorname;
 	res.redirect('/public/editUser.html'); })
 app.get('/createcontributor', (req, res) => {res.redirect('/public/newcontributor.html'); })
+app.get('/editUser', (req, res) => {
+	userID = req.query.username;
+	res.redirect('/public/editUser.html'); })
+app.get('/createUser', (req, res) => {res.redirect('/public/newUser.html'); })
+app.get('/login',connectEnsureLogin.ensureLoggedOut('/profile'), (req, res, next) =>{
+	res.redirect('/public/login.html');
+});
+
+
+

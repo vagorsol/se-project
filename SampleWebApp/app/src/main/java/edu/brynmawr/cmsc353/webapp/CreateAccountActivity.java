@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
@@ -17,59 +19,91 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class CreateAccountActivity extends AppCompatActivity{
-    // TODO: better variable names
+    public static final int COUNTER_ACTIVITY_ID = 1;
     EditText usernameText;
     EditText passwordText;
+    EditText nameText;
+    protected String username;
+    protected String password;
+    protected String name;
     protected String message;
-    protected String message2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_account);
+
+        usernameText = (EditText) findViewById(R.id.username);
+        passwordText = (EditText) findViewById(R.id.password);
+        nameText = (EditText) findViewById(R.id.name);
     }
 
     // Account Info Submitted
-    public void onClick(View v) {
-        // TODO: change this text so it fits the "create account" specificity
-        TextView tv = findViewById(R.id.login);
-        try {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            executor.execute( () -> {
+    public void onConnectButtonClick(View v) {
+        Log.v("Button Clicked", "Button: " + v.getId());
+
+        switch(v.getId()) {
+            case R.id.create:
+                TextView tv = findViewById(R.id.create);
                 try {
-                    // assumes that there is a server running on the AVD's host on port 3000
-                    // and that it has a /test endpoint that returns a JSON object with
-                    // a field called "message"
+                    ExecutorService executor = Executors.newSingleThreadExecutor();
+                    executor.execute(() -> {
+                        try {
+                            // assumes that there is a server running on the AVD's host on port 3000
+                            // and that it has a /test endpoint that returns a JSON object with
+                            // a field called "message"
 
-                    message = usernameText.getText().toString();
-                    message2 = passwordText.getText().toString();
+                            username = usernameText.getText().toString();
+                            password = passwordText.getText().toString();
+                            name = nameText.getText().toString();
 
+                            URL url = new URL("http://10.0.2.2:3000/newUserAndroid?username=" + username + "&password=" + password + "&name=" + name);
 
-                    URL url = new URL("http://10.0.2.2:3000/create?name=" + message + "&user=" + message2 );
+                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                            conn.setRequestMethod("GET");
+                            conn.connect();
 
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.connect();
+                            Scanner in = new Scanner(url.openStream());
+                            String response = in.nextLine();
 
-                    Scanner in = new Scanner(url.openStream());
+                            JSONObject jo = new JSONObject(response);
+                            message = jo.getString("status");
 
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            message = e.toString();
+                        }
+                    });
+
+                    // this waits for up to 2 seconds
+                    // it's a bit of a hack because it's not truly asynchronous
+                    // but it should be okay for our purposes (and is a lot easier)
+                    executor.awaitTermination(2, TimeUnit.SECONDS);
+
+                    // now we can set the status in the TextView
+
+                    if (message.equals("success")) {
+                        tv.setText("Success, Account Created!!");
+                        Intent i = new Intent(this, FundsViewActivity.class);
+                        startActivityForResult(i, COUNTER_ACTIVITY_ID);
+                    } else if (message.equals("failure")) {
+                        tv.setText("Failure, Please Change Username!");
+                        Intent i = new Intent(this, CreateAccountActivity.class);
+                        startActivityForResult(i, COUNTER_ACTIVITY_ID);
+                    }
                 } catch (Exception e) {
+
                     e.printStackTrace();
-                    message = e.toString();
+                    tv.setText(e.toString());
                 }
-            });
+                break;
 
-            // this waits for up to 2 seconds
-            // it's a bit of a hack because it's not truly asynchronous
-            // but it should be okay for our purposes (and is a lot easier)
-            executor.awaitTermination(2, TimeUnit.SECONDS);
-
-            // now we can set the status in the TextView
-            tv.setText( "added: " + message + " " + message2 );
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            tv.setText(e.toString());
+            case R.id.homepage:
+                Intent i = new Intent(this, MainActivity.class);
+                startActivityForResult(i, COUNTER_ACTIVITY_ID);
+                break;
+            default:
+                break;
         }
     }
 }
