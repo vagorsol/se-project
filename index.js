@@ -481,7 +481,7 @@ app.use('/allprogress', (req, res) => { // PLEASE CHECK IF IT NEEDS MODIFICATION
 			});
 			res.write('</ul>');
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
-			res.write("<p> <a href=\"/allprogress\">[Sort by Progress]</a>");
+			res.write("<p> <a href=\"/allFunds\">[View All]</a>");
 			res.end();
 			res.end();
 		    }
