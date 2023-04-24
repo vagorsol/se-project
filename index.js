@@ -555,7 +555,7 @@ app.use('/newcontributor', (req, res) => {
 app.use('/addToFund', (req, res) => {
 	var fundname = {'name' : req.query.fund};
 	var donationAmt = req.query.donation;
-	var username = {'username' : req.query.username}; // {'username' : req.user.username}; // todo: check if "req.user.username" is right here
+	var username = {'username' : req.user.username}; // {'username' : req.query.username};
 	var fundID;
 	// update fund
 	Fund.findOne(fundname).then((fund, err) => {
@@ -657,7 +657,7 @@ app.use('/addToFund', (req, res) => {
 });
 
 app.use('/contributionHistory', (req, res) => {
-	var username = {'username' : req.query.username} // {'username' : req.user.username};
+	var username = {'username' : req.user.username} // {'username' : req.query.username};
 	contributionHistory = [];
 
 	Contributor.findOne(username).then((contributor, err) => {
