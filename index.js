@@ -442,7 +442,7 @@ app.use('/allFunds', (req, res) => {
 			});
 			res.write('</ul>');
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
-			res.write("<p> <a href=\"/logout\">[Log Out]</a>");
+			res.write("<p> <a href=\"/allprogress\">[Sort by Progress]</a>");
 			res.end();
 		    }
 		}
@@ -480,6 +480,9 @@ app.use('/allprogress', (req, res) => { // PLEASE CHECK IF IT NEEDS MODIFICATION
 					 
 			});
 			res.write('</ul>');
+			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			res.write("<p> <a href=\"/allprogress\">[Sort by Progress]</a>");
+			res.end();
 			res.end();
 		    }
 		}
