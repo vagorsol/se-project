@@ -714,6 +714,8 @@ app.use('/getUsername', (req, res) => {
 });
 
 app.use('/viewUser', (req, res) => {
+	res.write(req.user.username);
+	res.write(req.user.note);
 	// res.write("<p> <a href=\"/modifyUser\">[Modify user information]</a>");????
 	res.write("<p> <a href=\"/addNote\">[Add a note]</a>");
 	res.write("<p> <a href=\"/create\">[Add Fund]</a>");
@@ -728,48 +730,45 @@ app.use('/addNote', (req, res) => {
 	// create a JSON object
 	var user = {'username': req.user.username};
 	var note = {'note': req.query.note};
-
+	
 	var filter = userID;  // Bandaid solution for not being able to pass query
-	console.log("Filter: " + filter);
-	// res.redirect('/public/editfund.html');
-	Fund.findOne({'username': filter}).then((fund, err) =>{
-		// console.log("Fund: " + fund);
+	console.log("User ID (to edit): " + filter);
+	Contributor.findOne({username: filter}).then((user, err) =>{
 		if (err) {
 			res.send('Unexpected Error!');
-		} else if (!fund || fund == null) {
-			console.log(fund);
+		} else if (!user || user == null) {
+			console.log(user);
 			// send message that there is no such fund
 			res.type('html').status(200);
 
 			res.write('No such username exists!');
-
 			res.write("<p> <a href=\"/viewUser\">[Back to Profile]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
+			res.end();
 		} else {
 			// if the submitted body isn't empty, update the value
 			if (req.body.note){
 				user.note = req.body.note;
-				user.findByIdAndUpdate({_id: user.id}, {note: user.note}).then((err, doc) => {
+				Contributor.findByIdAndUpdate({_id: user.id}, {note: user.note}).then((err) => {
 					if(err){
 						res.write('Unexpected Error!');
 					} else{
 						console.log("Updated note! " + user.note);
-						res.write("<p>Updated + " + user.name + "'s note!");
+						res.write("<p>Updated + " + user.username + "'s Note: " + user.note + "!");
 					}
 				});
 			}
 
 			res.type('html').status(200);
-			res.write('<p>Changes successfully made to ' + user.name + '!');
+			res.write('<p>Changes successfully made to ' + user.username + '!');
 			res.write(" <a href=\"/viewUser\">[Back to Profile]</a>");
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
+			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
+			res.end();
 		}
-		res.end();
-	})
-	
-	// send it back
-	res.json(data);
-    });
+	});
+})
 // endpoint for clearing history
 app.use('/clearHistory', (req, res) => {
 
