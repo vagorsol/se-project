@@ -30,7 +30,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         button0.setOnClickListener(this);
 
         // set header text as username
-        String username = getIntent().getStringExtra("User");
+        username = getIntent().getStringExtra("User");
        // String username = b.getString("Username");
 
         // if no username (i.e., not logged in), will be sent to create an account
@@ -68,7 +68,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     response = in.nextLine();
 
                     jo = new JSONObject(response);
-
                     username = jo.getString("message");
 
                 }

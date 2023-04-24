@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                     ExecutorService executor = Executors.newSingleThreadExecutor();
                     executor.execute( () -> {
                         try {
-                            // assumes that there is a server running on the AVD's host on port 3000
+                            // assumes that therJSe is a server running on the AVD's host on port 3000
                             // and that it has a /test endpoint that returns a JSON object with
                             // a field called "message"
 
@@ -69,8 +69,6 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject jo = new JSONObject(response);
                             message = jo.getString("status");
 
-                            toSend = "true";
-
                         } catch (Exception e) {
                             e.printStackTrace();
                             username = e.toString();
@@ -80,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     // this waits for up to 2 seconds
                     // it's a bit of a hack because it's not truly asynchronous
                     // but it should be okay for our purposes (and is a lot easier)
-                    executor.awaitTermination(5, TimeUnit.SECONDS);
+                    executor.awaitTermination(2, TimeUnit.SECONDS);
 
                     // now we can set the status in the TextView
                     tv.setText( "Login Status: " + message );
@@ -91,11 +89,6 @@ public class MainActivity extends AppCompatActivity {
                         Intent i = new Intent(this, MainActivity.class);
                         startActivityForResult(i, COUNTER_ACTIVITY_ID);
                     }
-                    tv.setText( "added: " + message + " " + message2 );
-                    Intent i = new Intent(this, FundsViewActivity.class);
-                    i.putExtra("message","true");
-                    i.putExtra("message2", message);
-                    startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 } catch (Exception e) {
 
                     e.printStackTrace();
@@ -105,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.guest:
                 // TODO: implement guest perms
                 Intent i = new Intent(this, FundsViewActivity.class);
-                i.putExtra("message",toSend);
                 startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 break;
             case R.id.ownerRequest:

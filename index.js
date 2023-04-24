@@ -440,7 +440,7 @@ app.use('/allFunds', (req, res) => {
 			});
 			res.write('</ul>');
 			res.write("<p> <a href=\"/\">[Return Home]</a>");
-			if(isLoggedIn) {res.write("<p> <a href=\"/logout\">[Log Out]</a>");}
+			res.write("<p> <a href=\"/logout\">[Log Out]</a>");
 			res.end();
 		    }
 		}
