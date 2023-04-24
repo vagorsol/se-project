@@ -42,6 +42,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         TextView usernameView = findViewById(R.id.username);
         TextView contributionView = findViewById(R.id.contribution_history);
+        TextView noteView = findViewById(R.id.notes);
 
         // get the username and contribution history
         try {
@@ -91,6 +92,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             e.printStackTrace();
             usernameView.setText(e.toString());
             contributionView.setText(e.toString());
+            noteView.setText(e.toString());
         }
     }
 
