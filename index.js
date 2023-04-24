@@ -706,16 +706,15 @@ app.use('/viewUser', (req, res) => {
 	res.write(" <a href=\"/request\">[Search for a Fund]</a>");
 	res.write("<p> <a href=\"/\">Return Home </a>");
 	res.end(); 
-
 });
 
 // add note
 app.use('/addNote', (req, res) => {
 	// create a JSON object
-	var user = {'username': req.query.username};
+	var user = {'username': req.user.username};
 	var note = {'note': req.query.note};
 
-	var filter = fundID;  // Bandaid solution for not being able to pass query
+	var filter = userID;  // Bandaid solution for not being able to pass query
 	console.log("Filter: " + filter);
 	// res.redirect('/public/editfund.html');
 	Fund.findOne({'username': filter}).then((fund, err) =>{
@@ -735,7 +734,7 @@ app.use('/addNote', (req, res) => {
 			// if the submitted body isn't empty, update the value
 			if (req.body.note){
 				user.note = req.body.note;
-				user.findByIdAndUpdate({_id: user.id}, {note: user.goal}).then((err, doc) => {
+				user.findByIdAndUpdate({_id: user.id}, {note: user.note}).then((err, doc) => {
 					if(err){
 						res.write('Unexpected Error!');
 					} else{
