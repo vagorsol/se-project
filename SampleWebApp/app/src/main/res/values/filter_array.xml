@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="filter_array">
-        <item>Progress (Least to Most)</item>
-        <item>Progress (Most to Least)</item>
-        <!-- Add other items as seen fit -->
-    </string-array>
-</resources>

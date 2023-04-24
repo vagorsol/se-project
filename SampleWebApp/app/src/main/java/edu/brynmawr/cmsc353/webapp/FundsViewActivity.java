@@ -4,19 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -25,30 +21,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class FundsViewActivity extends AppCompatActivity implements View.OnClickListener{
     public static final int COUNTER_ACTIVITY_ID = 1;
     ArrayList<String> jObjects = new ArrayList<>();
+    protected EditText editText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.allfunds_view);
-        EditText editText = (EditText)findViewById(R.id.search);
-
-        // set up spinner
-        //Spinner spinner = (Spinner) findViewById(R.id.filter_spinner);
-
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-        //        R.array.filter_array, android.R.layout.simple_spinner_item);
-        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //spinner.setAdapter(adapter);
-
-        // TODO: implement putting all funds on allfunds_view.xml
-        //Log.d("HERE!",getIntent().getStringExtra("message"));
+        editText = (EditText) findViewById(R.id.search);
 
         Button button0 = findViewById(R.id.profile);
         button0.setOnClickListener(this);
@@ -187,7 +169,7 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
                     executor.awaitTermination(5, TimeUnit.SECONDS);
                     ArrayList<String> atb = new ArrayList<String>();
                     //goes through and figures out if the fund is equal to the fund being search for
-                    for(int i=0; i<jObjects.size(); i++){
+                    for(int i = 0; i < jObjects.size(); i++){
                         String hehe = jObjects.get(i);
                         String[] a = hehe.split(" ");
                         //i'm not 100% sure that this is the right index
