@@ -78,13 +78,14 @@ public class MainActivity extends AppCompatActivity {
                     // this waits for up to 2 seconds
                     // it's a bit of a hack because it's not truly asynchronous
                     // but it should be okay for our purposes (and is a lot easier)
-                    executor.awaitTermination(2, TimeUnit.SECONDS);
+                    executor.awaitTermination(3, TimeUnit.SECONDS);
 
                     // now we can set the status in the TextView
                     tv.setText( "Login Status: " + message );
                     if (message.equals("success")){
                         Intent i = new Intent(this, FundsViewActivity.class);
                         i.putExtra("message", "true");
+                        i.putExtra("username", username);
                         startActivityForResult(i, COUNTER_ACTIVITY_ID);
                     } else if (message.equals("failure")){
                         Intent i = new Intent(this, MainActivity.class);
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.guest:
                 // TODO: implement guest perms
                 Intent i = new Intent(this, FundsViewActivity.class);
+                i.putExtra("message", "false");
                 startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 break;
             case R.id.ownerRequest:

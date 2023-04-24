@@ -20,9 +20,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class AcceptedActivity extends AppCompatActivity{
+
+    public static final int COUNTER_ACTIVITY_ID = 1;
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accepted);
+    }
+
+    public void onConnectButtonClick(View v) {
+
+        TextView tv = findViewById(R.id.homepage);
+
+        Intent i = new Intent(this, MainActivity.class);
+        startActivityForResult(i, COUNTER_ACTIVITY_ID);
     }
 }

@@ -630,14 +630,14 @@ app.use('/addToFund', (req, res) => {
 			if (!contributor.contribution_log || contributor.contribution_log == null) {
 				contributor.contribution_log = [{
 					fundId: fundID,
-					fudnName : fundname,
+					fundName : req.query.fund,
 					contribution: donationAmt,
 					date: new Date()
 				}];
 			} else {
 				contributor.contribution_log.push({
 					fundId: fundID,
-					fundName: fundname,
+					fundName: req.query.fund,
 					contribution: donationAmt,
 					date: new Date()
 				});
@@ -670,44 +670,11 @@ app.use('/deleteUser', (req, res) => {
 	});
 	res.redirect('/allUsers');
 });
-// endpoint for accessing contribution history
-app.use('/contributionHistory', (req, res) => {
-	var username = {'username' : req.user.username} // {'username' : req.query.username};
-	contributionHistory = [];
-
-	Contributor.findOne(username).then((contributor, err) => {
-		var contributionHistory = []
-		if (err) {
-			console.log(err);
-			res.json([]);
-		} else if (!contributor || contributor == null) {
-			// send empty json
-			res.json([]);
-		} else {
-			// if there is no contribution log, create one. otherwise, update
-			if (!contributor.contribution_log || contributor.contribution_log == null) {
-				// send empty json
-				res.json([])
-			} else {
-				contributor.contribution_log.forEach((i) => {
-					if (i.fundId) {
-						contributionHistory.unshift({
-							"fundId" : i.fundId,
-							"contribution" : i.contribution,
-							"date" : i.date
-						})
-					}
-				});
-				res.send(contributionHistory);
-			}	
-		}
-	})	
-});
 
 // return username function
 app.use('/getUsername', (req, res) => {
-	if (req.user.username) {
-		res.json({'username' : req.user.username});
+	if (req.query.username) {
+		res.json({'username' : req.query.username});
 	} else {
 		res.json([]);
 	}
@@ -815,6 +782,7 @@ app.get('/loginAndroid', passport.authenticate('local', {
 // Sends a message regarding the login success
 app.get('/loginAndroidSuccess', (req, res) =>{
 	res.json({"status" : "success"});
+	res.send;
 })
 // Sends a message regarding the login success
 app.get('/loginAndroidFailure', (req, res) =>{
@@ -830,10 +798,15 @@ app.get('/loginStatus', (req, res) => {
 });
 // return username function
 app.use('/getUsername', (req, res) => {
-	if (req.user) {
-		res.json({'username' : req.user.username});
-	} else {
-		res.json([]);
+	if (req.query.username) {
+		Contributor.findOne({'username': req.query.username}).then((user, err) => {
+			if (user) {
+				console.log(user.name);
+				res.json({"name" : user.name});
+			} else {
+				res.json({"name" : req.query.username});
+			}
+		});
 	}
 });
 app.get('/newUserAndroid', (req, res) => {
@@ -868,6 +841,40 @@ app.get('/newUserAndroidSuccess', (req, res) =>{
 app.get('/newUserAndroidFailure', (req, res) =>{
 	res.json({"status" : "failure"});
 })
+
+// endpoint for accessing contribution history
+app.use('/contributionHistory', (req, res) => {
+	var username = {'username' : req.query.username} // {'username' : req.query.username};
+	contributionHistory = [];
+
+	Contributor.findOne(username).then((contributor, err) => {
+		var contributionHistory = []
+		if (err) {
+			console.log(err);
+			res.json([]);
+		} else if (!contributor || contributor == null) {
+			// send empty json
+			res.json([]);
+		} else {
+			// if there is no contribution log, create one. otherwise, update
+			if (!contributor.contribution_log || contributor.contribution_log == null) {
+				// send empty json
+				res.json([])
+			} else {
+				contributor.contribution_log.forEach((i) => {
+					if (i.fundId) {
+								contributionHistory.unshift({
+									"fundId" : i.fundId,
+									"contribution" : i.contribution,
+									"date" : i.date.toLocaleDateString("en-US").toString()
+								})
+					}
+				});
+				res.send(contributionHistory);
+			}	
+		}
+	})	
+});
 
 
 

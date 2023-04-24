@@ -15,9 +15,16 @@
             android:id="@+id/statusField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30dp"
+            android:textSize="30sp"
             android:gravity="center"
             android:text="Administration will now process your form!" />
+
+        <Button
+            android:id="@+id/homepage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onConnectButtonClick"
+            android:text="Back" />
 
     </LinearLayout>
 

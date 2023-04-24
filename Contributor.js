@@ -17,6 +17,11 @@ var contributorSchema = new Schema({
         fundName : String,
         contribution : Number,
         date : Date
+    }],
+    notes : [{
+        date: Date,
+        note : String,
+        fundName : String
     }]
     });
 

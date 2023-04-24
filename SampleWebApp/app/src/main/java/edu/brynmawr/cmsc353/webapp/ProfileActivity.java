@@ -9,6 +9,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
@@ -20,8 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener{
     public static final int COUNTER_ACTIVITY_ID = 1;
+    protected String historyLog;
     protected String message;
     protected String username;
+    protected String name;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,12 +37,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         TextView contributionView = findViewById(R.id.contribution_history);
         TextView noteView = findViewById(R.id.notes);
 
+
         // get the username and contribution history
         try {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute( () -> {
                 try {
-                    URL url = new URL("http://10.0.2.2:3000/contributionHistory");
+                    URL url = new URL("http://10.0.2.2:3000/contributionHistory?username=" + username);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
                     conn.connect();
@@ -47,12 +51,20 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     Scanner in = new Scanner(url.openStream());
                     String response = in.nextLine();
 
-                    JSONObject jo = new JSONObject(response);
+                    JSONArray jo = new JSONArray(response);
 
-                    Log.v("help", jo.toString());
-                    message = jo.getString("message");
+                    //Log.v("help", jo.toString());
 
-                    url = new URL("http://10.0.2.2:3000/getUsername");
+
+                    for (int i=0; i < jo.length(); i++){
+                        JSONObject j = (JSONObject) jo.get(i);
+                        String name = "Fund Name:" + j.getString("fundId");
+                        String contribution = "Contribution: " + j.getString("contribution");
+                        String date = "Date:" + j.getString("date");
+                        historyLog = historyLog + name + contribution + date + "\n";
+                    }
+
+                    url = new URL("http://10.0.2.2:3000/getUsername?username=" + username);
                     conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
                     conn.connect();
@@ -60,8 +72,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     in = new Scanner(url.openStream());
                     response = in.nextLine();
 
-                    jo = new JSONObject(response);
-                    username = jo.getString("message");
+                    JSONObject job = new JSONObject(response);
+                    //name = job.getString("name");
 
                 }
                 catch (Exception e) {
@@ -72,10 +84,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
             // this waits for up to 2 seconds
             executor.awaitTermination(2, TimeUnit.SECONDS);
-
+            username = getIntent().getStringExtra("username");
             // now we can set the status in the TextView
             usernameView.setText("Welcome, " + username);
-            contributionView.setText(message);
+            contributionView.setText(historyLog);
         }
         catch (Exception e) {
             // uh oh
@@ -86,16 +98,18 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+
     @Override
-    public void onClick(View v) {
-        if(v.getId() == R.id.fundOwner) {
+    public void onClick(View view) {
+        if(view.getId() == R.id.fundOwner) {
             Intent i = new Intent(this, RequestOwnership2Activity.class);
 
             startActivityForResult(i, COUNTER_ACTIVITY_ID);
         }
-        if(v.getId() == R.id.back) {
+        if(view.getId() == R.id.back) {
             Intent i = new Intent(this, FundsViewActivity.class);
-
+            i.putExtra("message", "true");
+            i.putExtra("username", username);
             startActivityForResult(i, COUNTER_ACTIVITY_ID);
         }
     }

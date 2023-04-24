@@ -79,11 +79,11 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
             Log.v("hello", e.toString());
         }
             });
-            executor.awaitTermination(5, TimeUnit.SECONDS);
+            executor.awaitTermination(3, TimeUnit.SECONDS);
             TextView tv = findViewById(R.id.fund1);
             //int count =0;
             for(int i=0; i<jObjects.size(); i++) {
-                executor.awaitTermination(5, TimeUnit.SECONDS);
+                executor.awaitTermination(1, TimeUnit.SECONDS);
                 //deal with if theres more than 11
                 if ( i+1 == 1) {
                     tv = findViewById(R.id.fund1);
@@ -132,7 +132,7 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
                 // goes to the profile page
                 if (getIntent().getStringExtra("message").equals("true")) {
                     Intent i = new Intent(this, ProfileActivity.class);
-                    // i.putExtra("User", getIntent().getStringExtra("message2"));
+                    i.putExtra("username", getIntent().getStringExtra("username"));
                     startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 } else if (getIntent().getStringExtra("message").equals("false")) {
                     Intent i = new Intent(this, MainActivity.class);
