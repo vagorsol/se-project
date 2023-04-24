@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -30,19 +31,21 @@ import java.util.concurrent.TimeUnit;
 
 public class FundsViewActivity extends AppCompatActivity implements View.OnClickListener{
     public static final int COUNTER_ACTIVITY_ID = 1;
+    ArrayList<String> jObjects = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.allfunds_view);
+        EditText editText = (EditText)findViewById(R.id.search);
 
         // set up spinner
-        Spinner spinner = (Spinner) findViewById(R.id.filter_spinner);
+        //Spinner spinner = (Spinner) findViewById(R.id.filter_spinner);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.filter_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+        //        R.array.filter_array, android.R.layout.simple_spinner_item);
+        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //spinner.setAdapter(adapter);
 
         // TODO: implement putting all funds on allfunds_view.xml
         //Log.d("HERE!",getIntent().getStringExtra("message"));
@@ -50,10 +53,13 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
         Button button0 = findViewById(R.id.profile);
         button0.setOnClickListener(this);
 
+        Button button1 = findViewById(R.id.filter);
+        button1.setOnClickListener(this);
+
         //executor.awaitTermination(10, TimeUnit.SECONDS);
         try {
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            ArrayList<String> jObjects = new ArrayList<>();
+            //ArrayList<String> jObjects = new ArrayList<>();
             executor.execute( () -> {
                 JSONArray jo =null;
                 int count = 1;
@@ -144,11 +150,94 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
                 // goes to the profile page
                 if (getIntent().getStringExtra("message").equals("true")) {
                     Intent i = new Intent(this, ProfileActivity.class);
-                    i.putExtra("User", getIntent().getStringExtra("message2"));
+                    // i.putExtra("User", getIntent().getStringExtra("message2"));
                     startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 } else if (getIntent().getStringExtra("message").equals("false")) {
                     Intent i = new Intent(this, MainActivity.class);
                     startActivityForResult(i, COUNTER_ACTIVITY_ID);
+                }
+                break;
+            case R.id.filter:
+                try {
+                    ExecutorService executor = Executors.newSingleThreadExecutor();
+                    executor.execute( () -> {
+                        TextView tv = findViewById(R.id.fund1);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund2);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund3);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund4);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund5);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund6);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund7);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund8);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund9);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund10);
+                        tv.setText(" ");
+                        tv = findViewById(R.id.fund11);
+                        tv.setText(" ");
+                    });
+                    executor.awaitTermination(5, TimeUnit.SECONDS);
+                    ArrayList<String> atb = new ArrayList<String>();
+                    //goes through and figures out if the fund is equal to the fund being search for
+                    for(int i=0; i<jObjects.size(); i++){
+                        String hehe = jObjects.get(i);
+                        String[] a = hehe.split(" ");
+                        //i'm not 100% sure that this is the right index
+                        if(a[2].equals(editText.getText())){
+                            atb.add(hehe);
+                        }
+                    }
+                    TextView tv = findViewById(R.id.fund1);
+                    //goes through the arraylist and gets all the funds
+                    //figures out which view to put them in depending on the iteration
+                    for(int i=0; i<atb.size();i++){
+                        executor.awaitTermination(5, TimeUnit.SECONDS);
+                        //deal with if theres more than 11
+                        if ( i+1 == 1) {
+                            tv = findViewById(R.id.fund1);
+                        }
+                        if ( i+1 == 2) {
+                            tv = findViewById(R.id.fund2);
+                        }
+                        if ( i+1 == 3) {
+                            tv = findViewById(R.id.fund3);
+                        }
+                        if ( i+1 == 4) {
+                            tv = findViewById(R.id.fund4);
+                        }
+                        if ( i+1 == 5) {
+                            tv = findViewById(R.id.fund5);
+                        }
+                        if ( i+1 == 6) {
+                            tv = findViewById(R.id.fund6);
+                        }
+                        if ( i+1 == 7) {
+                            tv = findViewById(R.id.fund7);
+                        }
+                        if ( i+1 == 8) {
+                            tv = findViewById(R.id.fund8);
+                        }
+                        if ( i+1 == 9) {
+                            tv = findViewById(R.id.fund9);
+                        }
+                        if ( i+1 == 10) {
+                            tv = findViewById(R.id.fund10);
+                        }
+                        if ( i+1 == 11) {
+                            tv = findViewById(R.id.fund11);
+                        }
+                        tv.setText(jObjects.get(i));
+                    }
+                } catch (Exception e) {
+                    Log.v("hello", e.toString());
                 }
                 break;
         }

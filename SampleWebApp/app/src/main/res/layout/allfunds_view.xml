@@ -34,12 +34,14 @@
                 android:text="profile" />
         </RelativeLayout>
 
-        <Spinner
-            android:id="@+id/filter_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
         <!-- I cannot get this to center and at this point I Do Not Care™ -->
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search For Fund Here"
+            android:textSize="30dp" />
+
         <Button
             android:id="@+id/filter"
             android:layout_width="wrap_content"
@@ -53,8 +55,6 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
-
-        <!-- TODO: Insert Funds here-->
 
         <TextView
             android:id="@+id/fund1"
