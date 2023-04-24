@@ -1,5 +1,6 @@
 const { ObjectId } = require('mongodb');
 var mongoose = require('mongoose');
+var passportLocalMongoose = require('passport-local-mongoose');
 
 // the host:port must match the location where you are running MongoDB
 // the "myDatabase" part can be anything you like
@@ -20,6 +21,8 @@ var ownerSchema = new Schema({
     contactEmail: String,
     contactNumber: String
     });
+
+ownerSchema.plugin(passportLocalMongoose);
 
 // export fundSchema as a class called Fund
 module.exports = mongoose.model('Owner',ownerSchema);

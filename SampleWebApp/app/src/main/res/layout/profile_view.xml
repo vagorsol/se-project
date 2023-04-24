@@ -57,6 +57,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Become a Fund Owner!" />
+
+        <Button android:id="@+id/back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back to All Funds" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
