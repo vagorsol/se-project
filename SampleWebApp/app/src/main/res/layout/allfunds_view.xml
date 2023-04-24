@@ -56,6 +56,73 @@
 
         <!-- TODO: Insert Funds here-->
 
+        <TextView
+            android:id="@+id/fund1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+        <TextView
+            android:id="@+id/fund11"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray"
+            android:text=" "/>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
