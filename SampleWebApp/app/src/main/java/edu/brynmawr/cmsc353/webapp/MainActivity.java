@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
                     tv.setText( "Login Status: " + message );
                     if (message.equals("success")){
                         Intent i = new Intent(this, FundsViewActivity.class);
+                        i.putExtra("message", "true");
                         startActivityForResult(i, COUNTER_ACTIVITY_ID);
                     } else if (message.equals("failure")){
                         Intent i = new Intent(this, MainActivity.class);

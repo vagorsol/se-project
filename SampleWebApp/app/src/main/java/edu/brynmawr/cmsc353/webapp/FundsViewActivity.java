@@ -144,7 +144,7 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
                 // goes to the profile page
                 if (getIntent().getStringExtra("message").equals("true")) {
                     Intent i = new Intent(this, ProfileActivity.class);
-                    i.putExtra("User", getIntent().getStringExtra("message2"));
+                    // i.putExtra("User", getIntent().getStringExtra("message2"));
                     startActivityForResult(i, COUNTER_ACTIVITY_ID);
                 } else if (getIntent().getStringExtra("message").equals("false")) {
                     Intent i = new Intent(this, MainActivity.class);

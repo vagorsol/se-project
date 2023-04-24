@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener{
     public static final int COUNTER_ACTIVITY_ID = 1;
     protected String message;
+    protected String username;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,17 +29,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         Button button0 = findViewById(R.id.fundOwner);
         button0.setOnClickListener(this);
-
-        // set header text as username
-       // String username = b.getString("Username");
-
-        // if no username (i.e., not logged in), will be sent to create an account
-        //if (username.isEmpty()) {
-        //    Intent i = new Intent(this, CreateAccountActivity.class);
-         //   startActivityForResult(i, COUNTER_ACTIVITY_ID);
-        //}
-
-        final String[] username = {getIntent().getStringExtra("User")};
 
         TextView usernameView = findViewById(R.id.username);
         TextView contributionView = findViewById(R.id.contribution_history);
@@ -70,7 +60,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     response = in.nextLine();
 
                     jo = new JSONObject(response);
-                    username[0] = jo.getString("message");
+                    username = jo.getString("message");
 
                 }
                 catch (Exception e) {
@@ -83,7 +73,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             executor.awaitTermination(2, TimeUnit.SECONDS);
 
             // now we can set the status in the TextView
-            usernameView.setText("Welcome, " + username[0]);
+            usernameView.setText("Welcome, " + username);
             contributionView.setText(message);
         }
         catch (Exception e) {

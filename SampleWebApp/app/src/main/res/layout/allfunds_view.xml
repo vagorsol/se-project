@@ -54,8 +54,6 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- TODO: Insert Funds here-->
-
         <TextView
             android:id="@+id/fund1"
             android:layout_width="match_parent"
