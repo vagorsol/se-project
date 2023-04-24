@@ -4,15 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -21,16 +25,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class FundsViewActivity extends AppCompatActivity implements View.OnClickListener{
     public static final int COUNTER_ACTIVITY_ID = 1;
     ArrayList<String> jObjects = new ArrayList<>();
-    protected EditText editText;
+    EditText editText = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.allfunds_view);
-        editText = (EditText) findViewById(R.id.search);
+        //EditText editText = (EditText)findViewById(R.id.search);
+
+        // set up spinner
+        //Spinner spinner = (Spinner) findViewById(R.id.filter_spinner);
+
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+        //        R.array.filter_array, android.R.layout.simple_spinner_item);
+        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //spinner.setAdapter(adapter);
+
+        // TODO: implement putting all funds on allfunds_view.xml
+        //Log.d("HERE!",getIntent().getStringExtra("message"));
 
         Button button0 = findViewById(R.id.profile);
         button0.setOnClickListener(this);
@@ -41,7 +60,6 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
         //executor.awaitTermination(10, TimeUnit.SECONDS);
         try {
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            //ArrayList<String> jObjects = new ArrayList<>();
             executor.execute( () -> {
                 JSONArray jo =null;
                 int count = 1;
@@ -79,11 +97,11 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
             Log.v("hello", e.toString());
         }
             });
-            executor.awaitTermination(3, TimeUnit.SECONDS);
+            executor.awaitTermination(5, TimeUnit.SECONDS);
             TextView tv = findViewById(R.id.fund1);
             //int count =0;
             for(int i=0; i<jObjects.size(); i++) {
-                executor.awaitTermination(1, TimeUnit.SECONDS);
+                executor.awaitTermination(5, TimeUnit.SECONDS);
                 //deal with if theres more than 11
                 if ( i+1 == 1) {
                     tv = findViewById(R.id.fund1);
@@ -141,6 +159,7 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.filter:
                 try {
+                    ArrayList<String> atb = new ArrayList<String>();
                     ExecutorService executor = Executors.newSingleThreadExecutor();
                     executor.execute( () -> {
                         TextView tv = findViewById(R.id.fund1);
@@ -167,16 +186,22 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
                         tv.setText(" ");
                     });
                     executor.awaitTermination(5, TimeUnit.SECONDS);
-                    ArrayList<String> atb = new ArrayList<String>();
+
                     //goes through and figures out if the fund is equal to the fund being search for
-                    for(int i = 0; i < jObjects.size(); i++){
+                    for(int i=0; i<jObjects.size(); i++){
                         String hehe = jObjects.get(i);
                         String[] a = hehe.split(" ");
                         //i'm not 100% sure that this is the right index
-                        if(a[2].equals(editText.getText())){
+                        EditText editText = (EditText)findViewById(R.id.search);
+                        Log.d("crying", a[1]);
+                        Log.d("text", editText.getText().toString());
+                        //a[0].trim().equals(editText.getText().toString().trim())
+                        if(a[1].trim().equals(editText.getText().toString().trim())){
                             atb.add(hehe);
+                            Log.d("yeah", "here");
                         }
                     }
+                    Log.d("array" , atb.toString());
                     TextView tv = findViewById(R.id.fund1);
                     //goes through the arraylist and gets all the funds
                     //figures out which view to put them in depending on the iteration
@@ -216,7 +241,7 @@ public class FundsViewActivity extends AppCompatActivity implements View.OnClick
                         if ( i+1 == 11) {
                             tv = findViewById(R.id.fund11);
                         }
-                        tv.setText(jObjects.get(i));
+                        tv.setText(atb.get(i));
                     }
                 } catch (Exception e) {
                     Log.v("hello", e.toString());
