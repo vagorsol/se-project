@@ -453,7 +453,7 @@ app.use('/allFunds', (req, res) => {
 app.use('/allprogress', (req, res) => { // PLEASE CHECK IF IT NEEDS MODIFICATIONS
     
 	// find all the Fund objects in the database
-	Person.find( {}, (err, funds) => {
+	Fund.find( {}, (fund, err) => {
 		if (err) {
 		    res.type('html').status(200);
 		    console.log('uh oh' + err);
@@ -843,7 +843,6 @@ app.get('/newUserAndroidSuccess', (req, res) =>{
 app.get('/newUserAndroidFailure', (req, res) =>{
 	res.json({"status" : "failure"});
 })
-
 // endpoint for accessing contribution history
 app.use('/contributionHistory', (req, res) => {
 	var username = {'username' : req.query.username} // {'username' : req.query.username};
@@ -865,19 +864,46 @@ app.use('/contributionHistory', (req, res) => {
 			} else {
 				contributor.contribution_log.forEach((i) => {
 					if (i.fundId) {
-								contributionHistory.unshift({
-									"fundId" : i.fundId,
-									"contribution" : i.contribution,
-									"date" : i.date.toLocaleDateString("en-US").toString()
-								})
+						contributionHistory.unshift({
+							"fundId" : i.fundId,
+							"contribution" : i.contribution,
+							"date" : i.date.toLocaleDateString("en-US").toString()
+						})
 					}
-				});
+				})
+				console.log(contributionHistory);
 				res.send(contributionHistory);
 			}	
 		}
-	})	
+	});	
 });
 
+app.get('/allFundsAndroid'), (req,res) => { 
+		// find all the Person objects in the database
+		Fund.find().then((funds, err) => {
+			var fundCollections = []
+			if (err) {
+				res.type('html').status(200);
+				console.log('uh oh' + err);
+				res.json({});
+			}
+			else {
+				if (!funds || funds == null || funds.length == 0) {
+					res.json({});
+				} else {
+					funds.sort();
+					funds.forEach((fund) => {
+						fundCollections.push({
+							"fundName" : fund.name,
+							"goal" : fund.goal,
+							"progress" : fund.progress
+						})
+					})
+					res.send(fundCollections);
+				}
+			}
+		});
+}
 
 
 // This starts the web server on port 3000. 

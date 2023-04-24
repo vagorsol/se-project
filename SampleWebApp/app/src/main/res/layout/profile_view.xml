@@ -26,7 +26,7 @@
             android:background="@android:color/darker_gray"/>
 
         <!-- Contribution History -->
-        <TextView android:id="@+id/contribution_history"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20dp"
@@ -34,6 +34,7 @@
             android:text="Funds Donated To" />
 
         <TextView
+            android:id="@+id/contribution_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="15dp"
