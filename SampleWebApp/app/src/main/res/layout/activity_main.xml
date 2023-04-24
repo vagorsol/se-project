@@ -54,6 +54,13 @@
             android:gravity="center"
             android:onClick="onConnectButtonClick"/>
         <Button
+            android:id="@+id/newUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create Account"
+            android:gravity="center"
+            android:onClick="onConnectButtonClick"/>
+        <Button
             android:id="@+id/guest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
